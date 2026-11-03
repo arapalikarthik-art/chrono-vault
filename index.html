@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -53,7 +52,6 @@
   </script>
 
   <style>
-    /* Cinematic IMAX & Film Flare Styling */
     body {
       background-color: #040508;
       background-image: 
@@ -80,20 +78,14 @@
       background: linear-gradient(90deg, transparent 0%, rgba(245, 158, 11, 0.8) 50%, transparent 100%);
     }
 
-    .anamorphic-line-teal {
-      height: 1px;
-      background: linear-gradient(90deg, transparent 0%, rgba(6, 182, 212, 0.8) 50%, transparent 100%);
-    }
-
-    /* 3D Canvas Container */
     #canvas3d-container {
       cursor: grab;
+      touch-action: none;
     }
     #canvas3d-container:active {
       cursor: grabbing;
     }
 
-    /* Custom sleek scrollbar */
     ::-webkit-scrollbar {
       width: 4px;
       height: 4px;
@@ -108,14 +100,6 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #f59e0b;
     }
-
-    @keyframes pulseAura {
-      0%, 100% { opacity: 0.8; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.02); }
-    }
-    .cine-pulse {
-      animation: pulseAura 4s infinite ease-in-out;
-    }
   </style>
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col font-sans selection:bg-amber-500 selection:text-black relative overflow-x-hidden">
@@ -123,7 +107,6 @@
   <!-- TOP CINEMATIC HUD BAR -->
   <header class="sticky top-0 z-40 glass-cine border-b border-cine-border shadow-2xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <!-- Title & Live Time -->
       <div class="flex items-center space-x-3">
         <div class="relative w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-stone-900 to-teal-500 flex items-center justify-center border border-amber-500/40 shadow-anamorphic-amber">
           <i class="ph-fill ph-atom text-amber-300 text-2xl"></i>
@@ -145,26 +128,16 @@
         </div>
       </div>
 
-      <!-- Quick Actions -->
       <div class="flex items-center space-x-2 sm:space-x-3">
-        <!-- Sentinel Briefing Launcher -->
-        <button onclick="triggerDebriefHUD(true)" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-anamorphic-amber transition">
+        <button onclick="triggerDebriefHUD()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-anamorphic-amber transition">
           <i class="ph-bold ph-bell-ringing text-amber-400"></i>
           <span class="hidden sm:inline">WHAT HAPPENED?</span>
         </button>
 
-        <!-- Voice Toggle -->
         <button id="voiceMuteToggle" onclick="toggleVoiceSpeech()" class="p-2 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-cine-elevated transition border border-transparent hover:border-cine-border" title="Voice Synthesizer On/Off">
           <i id="voiceMuteIcon" class="ph-bold ph-speaker-high text-base"></i>
         </button>
 
-        <!-- Step-by-Step Flow Launcher -->
-        <button onclick="openWizardModal(1)" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/40 transition">
-          <i class="ph-fill ph-lightning text-teal-400"></i>
-          <span class="hidden sm:inline">DAY PREP</span>
-        </button>
-
-        <!-- System Updates & Extensions Nav -->
         <button onclick="switchTab('updates')" class="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-cine-elevated transition" title="OTA Updates & System Extensions">
           <i class="ph-bold ph-gear-six text-lg"></i>
           <span id="updateDotBadge" class="absolute top-1 right-1 h-2 w-2 rounded-full bg-amber-400 animate-ping"></span>
@@ -174,10 +147,9 @@
     <div class="anamorphic-line w-full"></div>
   </header>
 
-  <!-- ==================== 3D HOLOGRAPHIC CHRONO VISUALIZER ==================== -->
+  <!-- 3D HOLOGRAPHIC CHRONO VISUALIZER -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-5 w-full">
     <div class="relative glass-cine rounded-2xl border border-amber-500/20 overflow-hidden shadow-2xl">
-      <!-- Top Canvas Controls Overlay -->
       <div class="absolute top-3 left-4 right-4 z-10 flex flex-wrap items-center justify-between pointer-events-none gap-2">
         <div class="flex items-center gap-2 pointer-events-auto">
           <span class="text-[10px] font-mono tracking-widest text-amber-400 bg-black/60 px-2 py-1 rounded border border-amber-500/30 uppercase flex items-center gap-1.5">
@@ -202,12 +174,8 @@
         </div>
       </div>
 
-      <!-- Canvas Mount -->
-      <div id="canvas3d-container" class="w-full h-44 sm:h-56 relative bg-gradient-to-b from-[#040508] via-[#090d16] to-[#040508]">
-        <!-- 3D Canvas injected via Three.js -->
-      </div>
+      <div id="canvas3d-container" class="w-full h-44 sm:h-56 relative bg-gradient-to-b from-[#040508] via-[#090d16] to-[#040508]"></div>
 
-      <!-- Bottom Status Readout -->
       <div class="px-4 py-2 border-t border-cine-border/60 bg-black/40 flex flex-wrap items-center justify-between text-[11px] font-mono text-slate-400 gap-2">
         <div class="flex items-center gap-4">
           <span>TARGET MATRIX: <span id="hudTomorrowTasksCount" class="text-amber-400 font-bold">0</span> EVENTS</span>
@@ -221,7 +189,7 @@
     </div>
   </section>
 
-  <!-- ==================== MAIN WORKSPACE TABS ==================== -->
+  <!-- MAIN WORKSPACE -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-6">
 
     <!-- NAVIGATION TABS -->
@@ -240,7 +208,7 @@
 
       <button onclick="switchTab('media')" id="tabBtn-media" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
         <i class="ph-bold ph-music-notes text-base text-teal-400"></i>
-        <span>03. MUSIC & FILE VAULT</span>
+        <span>03. MUSIC &amp; FILE VAULT</span>
         <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30 font-mono">IDB PERM</span>
       </button>
 
@@ -258,7 +226,7 @@
 
       <button onclick="switchTab('updates')" id="tabBtn-updates" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
         <i class="ph-bold ph-sliders-horizontal text-base text-purple-400"></i>
-        <span>06. EXTENSIONS & UPDATES</span>
+        <span>06. EXTENSIONS &amp; UPDATES</span>
       </button>
     </div>
 
@@ -279,7 +247,6 @@
           </button>
         </div>
 
-        <!-- Filter bar -->
         <div class="flex items-center justify-between gap-2 px-1 text-xs font-mono">
           <div class="flex items-center gap-1.5">
             <span class="text-slate-500">FILTER:</span>
@@ -290,13 +257,11 @@
           <span id="tomorrowTimelineCount" class="text-slate-500">0 PROGRAMS</span>
         </div>
 
-        <!-- Chrono Timeline Container -->
-        <div id="tomorrowTimelineList" class="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-amber-500 before:via-teal-500 before:to-transparent">
-          <!-- Dynamic Items -->
+        <div id="tomorrowTimelineList" class="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-amber-500 before:via-teal-500 before:to-transparent min-h-[120px]">
+          <!-- Items render here -->
         </div>
       </div>
 
-      <!-- Metrics and EVE Readiness Widget -->
       <div class="w-full lg:w-80 space-y-4">
         <div class="glass-cine p-5 rounded-2xl space-y-4 border-l-4 border-l-amber-400">
           <div class="flex items-center justify-between">
@@ -304,11 +269,11 @@
             <i class="ph-bold ph-gauge text-amber-400 text-lg"></i>
           </div>
           <div class="flex items-baseline gap-2">
-            <span id="readinessScoreVal" class="text-3xl font-bold font-mono text-white">88%</span>
-            <span id="readinessLabel" class="text-xs text-amber-400 font-mono">LOCKDOWN READY</span>
+            <span id="readinessScoreVal" class="text-3xl font-bold font-mono text-white">100%</span>
+            <span id="readinessLabel" class="text-xs text-amber-400 font-mono">SYSTEM READY</span>
           </div>
           <div class="w-full bg-cine-elevated h-1.5 rounded-full overflow-hidden">
-            <div id="readinessBar" class="bg-gradient-to-r from-amber-400 to-teal-400 h-full w-[88%] rounded-full transition-all duration-500"></div>
+            <div id="readinessBar" class="bg-gradient-to-r from-amber-400 to-teal-400 h-full w-[100%] rounded-full transition-all duration-500"></div>
           </div>
           <p class="text-xs text-slate-400 leading-relaxed font-mono">
             Planning tasks ahead clears working memory and encourages natural restorative rest.
@@ -319,7 +284,7 @@
           <h3 class="text-xs font-bold font-mono tracking-wider text-slate-300 flex items-center gap-2">
             <i class="ph-bold ph-crosshair text-teal-400"></i> NIGHT PROTOCOL
           </h3>
-          <ul class="text-xs space-y-2 text-slate-400">
+          <ul class="text-xs space-y-2 text-slate-400 font-mono">
             <li class="flex items-center gap-2">
               <input type="checkbox" id="chkProt1" class="rounded bg-cine-elevated border-cine-border text-amber-400 focus:ring-0">
               <label for="chkProt1">Triage today's uncompleted items</label>
@@ -330,7 +295,7 @@
             </li>
             <li class="flex items-center gap-2">
               <input type="checkbox" id="chkProt3" class="rounded bg-cine-elevated border-cine-border text-amber-400 focus:ring-0">
-              <label for="chkProt3">Shutdown screen & initiate sleep cycle</label>
+              <label for="chkProt3">Shutdown screen &amp; initiate sleep cycle</label>
             </li>
           </ul>
         </div>
@@ -345,7 +310,7 @@
             <span class="h-2 w-2 rounded-full bg-rose-500"></span>
             <h2 class="text-sm font-bold tracking-wide uppercase font-mono text-white">Missed Program Resolution Matrix</h2>
           </div>
-          <p class="text-xs text-slate-400">Review tasks that slipped past. 1-click push them into tomorrow's schedule or dismiss.</p>
+          <p class="text-xs text-slate-400 font-mono">Review tasks that slipped past. 1-click push them into tomorrow's schedule or dismiss.</p>
         </div>
         <button onclick="openMissedModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold font-mono tracking-wider bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 flex items-center gap-1.5 transition">
           <i class="ph-bold ph-plus-circle text-base"></i>
@@ -354,11 +319,11 @@
       </div>
 
       <div id="missedItemsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Rendered dynamically -->
+        <!-- Missed Items Grid -->
       </div>
     </section>
 
-    <!-- TAB 3: PERMANENT MUSIC & FILE VAULT (IndexedDB) -->
+    <!-- TAB 3: MEDIA VAULT -->
     <section id="tab-media" class="tab-section hidden space-y-6">
       <div class="glass-cine p-5 rounded-2xl flex flex-col md:flex-row gap-6 items-center justify-between">
         <div class="space-y-1">
@@ -367,9 +332,43 @@
             <h2 class="text-sm font-bold uppercase font-mono text-white tracking-wider">Permanent IndexedDB Media Engine</h2>
           </div>
           <p class="text-xs text-slate-400 max-w-xl leading-relaxed">
-            All music tracks, audio assets, and vaulted files are written directly into your local browser IndexedDB storage engine. They persist permanently across restarts and do not consume cloud bandwidth.
+            All music tracks, audio assets, and vaulted files persist locally across restarts.
           </p>
         </div>
+      </div>
+      <div class="p-8 border border-dashed border-cine-border rounded-2xl text-center text-xs font-mono text-slate-500">
+        Vault engine mounted. Drag files here or configure external sync.
+      </div>
+    </section>
 
-        <div class="flex flex-wrap items-center gap-3">
-          <label class="cursor-pointer px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-mono text-xs font-bold tracking-wide flex items-center gap-2 shad
+    <!-- TAB 4: INTEL NOTES -->
+    <section id="tab-notes" class="tab-section hidden space-y-4">
+      <div class="glass-cine p-4 rounded-2xl flex justify-between items-center">
+        <h2 class="text-sm font-mono font-bold uppercase text-white">Tactical Intel Notes</h2>
+        <button onclick="addIntelNote()" class="px-3 py-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-mono rounded-xl">+ NEW NOTE</button>
+      </div>
+      <div id="notesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- TAB 5: CREDENTIALS -->
+    <section id="tab-credentials" class="tab-section hidden space-y-4">
+      <div class="glass-cine p-5 rounded-2xl space-y-2">
+        <h2 class="text-sm font-mono font-bold uppercase text-white flex items-center gap-2">
+          <i class="ph ph-lock text-amber-400"></i> Secret Credentials Locker
+        </h2>
+        <p class="text-xs text-slate-400">End-to-end client encrypted credentials storage.</p>
+      </div>
+    </section>
+
+    <!-- TAB 6: UPDATES & EXTENSIONS -->
+    <section id="tab-updates" class="tab-section hidden space-y-4">
+      <div class="glass-cine p-5 rounded-2xl space-y-2">
+        <h2 class="text-sm font-mono font-bold uppercase text-white">System Extensions &amp; OTA Channel</h2>
+        <p class="text-xs text-slate-400 font-mono">System running kernel: AETHER-3.0-EXT // Status: Nominal</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: ADD PROGRAM -->
+  <div id="tomorrowModal" clas
