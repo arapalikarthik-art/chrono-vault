@@ -1,2548 +1,379 @@
-```html
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AETHER // CINEMATIC OS v3.0 - Executive Holographic Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AETHER // CINEMATIC OS v3.1</title>
   
-  <!-- Tailwind CSS -->
+  <!-- PWA & Mobile Meta Tags -->
+  <meta name="theme-color" content="#040508">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Aether OS">
+  
+  <!-- Data-URI Web App Manifest -->
+  <link rel="manifest" href="data:application/manifest+json;utf-8,%7B%22name%22%3A%22Aether%20Cinematic%20OS%22%2C%22short_name%22%3A%22Aether%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23040508%22%2C%22theme_color%22%3A%22%23040508%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F2091%2F2091580.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+  
+  <!-- CDNs: Tailwind, Google Fonts, Lucide Icons, Three.js -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Three.js for 3D Visualizer -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- Phosphor Icons -->
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            cinzel: ['"Cinzel"', 'serif'],
-            sans: ['"Space Grotesk"', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            cine: {
-              void: '#040508',
-              obsidian: '#07090e',
-              surface: '#0d111a',
-              elevated: '#141a27',
-              border: '#1f293d',
-              gold: '#f59e0b',
-              amber: '#d97706',
-              teal: '#06b6d4',
-              cyan: '#00f2ff',
-              emerald: '#10b981',
-              crimson: '#f43f5e',
-            }
-          },
-          boxShadow: {
-            'anamorphic-amber': '0 0 35px -5px rgba(245, 158, 11, 0.35)',
-            'anamorphic-teal': '0 0 35px -5px rgba(6, 182, 212, 0.35)',
-            'letterbox-glow': 'inset 0 0 60px rgba(0,0,0,0.85)',
-          }
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <style>
-    /* Cinematic IMAX & Film Flare Styling */
+    :root {
+      --bg: #040508;
+      --card-bg: rgba(10, 13, 20, 0.72);
+      --card-border: rgba(212, 175, 55, 0.16);
+      --gold-primary: #e6ca65;
+      --gold-glow: rgba(230, 202, 101, 0.35);
+      --cyan-lum: #22d3ee;
+      --text-main: #f3f4f6;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
     body {
-      background-color: #040508;
-      background-image: 
-        radial-gradient(ellipse 90% 40% at 50% 0%, rgba(245, 158, 11, 0.08), transparent 70%),
-        radial-gradient(ellipse 70% 30% at 50% 100%, rgba(6, 182, 212, 0.07), transparent 70%);
-      background-attachment: fixed;
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      margin: 0;
     }
-
-    .glass-cine {
-      background: rgba(13, 17, 26, 0.82);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(245, 158, 11, 0.15);
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .font-mono { font-family: 'Space Mono', monospace; }
+    .cinematic-flare {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 280px;
+      background: radial-gradient(ellipse at top, rgba(230, 202, 101, 0.14) 0%, rgba(34, 211, 238, 0.05) 45%, transparent 75%);
+      pointer-events: none;
+      z-index: 1;
     }
-
-    .glass-card {
-      background: rgba(20, 26, 39, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+    .glass-panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
     }
-
-    .anamorphic-line {
-      height: 1px;
-      background: linear-gradient(90deg, transparent 0%, rgba(245, 158, 11, 0.8) 50%, transparent 100%);
+    .gold-glow {
+      box-shadow: 0 0 25px -4px var(--gold-glow);
     }
-
-    .anamorphic-line-teal {
-      height: 1px;
-      background: linear-gradient(90deg, transparent 0%, rgba(6, 182, 212, 0.8) 50%, transparent 100%);
+    .btn-gold {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #050505;
+      font-weight: 700;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-
-    /* 3D Canvas Container */
-    #canvas3d-container {
-      cursor: grab;
+    .btn-gold:active {
+      transform: scale(0.97);
     }
-    #canvas3d-container:active {
-      cursor: grabbing;
+    .nav-tab.active {
+      background: rgba(230, 202, 101, 0.12);
+      border-color: rgba(230, 202, 101, 0.4);
+      color: #fbbf24;
     }
-
-    /* Custom sleek scrollbar */
-    ::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
+    #three-viewport {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: auto;
     }
-    ::-webkit-scrollbar-track {
-      background: #040508;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #1f293d;
-      border-radius: 999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #f59e0b;
-    }
-
-    @keyframes pulseAura {
-      0%, 100% { opacity: 0.8; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.02); }
-    }
-    .cine-pulse {
-      animation: pulseAura 4s infinite ease-in-out;
-    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #06080d; }
+    ::-webkit-scrollbar-thumb { background: #222938; border-radius: 3px; }
   </style>
-</head>
-<body class="text-slate-200 min-h-screen flex flex-col font-sans selection:bg-amber-500 selection:text-black relative overflow-x-hidden">
 
-  <!-- TOP CINEMATIC HUD BAR -->
-  <header class="sticky top-0 z-40 glass-cine border-b border-cine-border shadow-2xl">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <!-- Title & Live Time -->
-      <div class="flex items-center space-x-3">
-        <div class="relative w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-stone-900 to-teal-500 flex items-center justify-center border border-amber-500/40 shadow-anamorphic-amber">
-          <i class="ph-fill ph-atom text-amber-300 text-2xl"></i>
-          <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400"></span>
-          </span>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="font-cinzel font-bold text-sm sm:text-base tracking-widest uppercase text-white flex items-center gap-2">
-              AETHER <span class="text-amber-500 text-xs font-mono font-normal">// CINEMATIC OS</span>
-            </h1>
-            <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">v3.0 EXT</span>
-          </div>
-          <div id="liveHUDClock" class="text-[11px] font-mono text-slate-400 flex items-center gap-2">
-            <i class="ph ph-satellite text-teal-400"></i> SYNCHRONIZING REALTIME ORBITS...
-          </div>
+  <!-- Dynamic Service Worker Registration for PWA Engine -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        const swBlob = new Blob([
+          `self.addEventListener('install', e => self.skipWaiting());
+           self.addEventListener('activate', e => self.clients.claim());
+           self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));`
+        ], { type: 'text/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(swBlob))
+          .then(reg => console.log('Aether PWA Service Worker Ready:', reg.scope))
+          .catch(err => console.error('SW Error:', err));
+      });
+    }
+  </script>
+</head>
+<body class="min-h-screen relative antialiased pb-20 selection:bg-amber-500 selection:text-black">
+
+  <div class="cinematic-flare"></div>
+
+  <!-- Header Banner -->
+  <header class="relative z-10 border-b border-amber-500/20 glass-panel px-4 md:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-amber-600 via-amber-400 to-amber-200 p-[1.5px] flex items-center justify-center shadow-lg shadow-amber-500/20">
+        <div class="w-full h-full bg-[#05070a] rounded-[7px] flex items-center justify-center">
+          <i data-lucide="orbit" class="w-5 h-5 text-amber-400"></i>
         </div>
       </div>
-
-      <!-- Quick Actions -->
-      <div class="flex items-center space-x-2 sm:space-x-3">
-        <!-- Sentinel Briefing Launcher -->
-        <button onclick="triggerDebriefHUD(true)" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-anamorphic-amber transition">
-          <i class="ph-bold ph-bell-ringing text-amber-400"></i>
-          <span class="hidden sm:inline">WHAT HAPPENED?</span>
-        </button>
-
-        <!-- Voice Toggle -->
-        <button id="voiceMuteToggle" onclick="toggleVoiceSpeech()" class="p-2 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-cine-elevated transition border border-transparent hover:border-cine-border" title="Voice Synthesizer On/Off">
-          <i id="voiceMuteIcon" class="ph-bold ph-speaker-high text-base"></i>
-        </button>
-
-        <!-- Step-by-Step Flow Launcher -->
-        <button onclick="openWizardModal(1)" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/40 transition">
-          <i class="ph-fill ph-lightning text-teal-400"></i>
-          <span class="hidden sm:inline">DAY PREP</span>
-        </button>
-
-        <!-- System Updates & Extensions Nav -->
-        <button onclick="switchTab('updates')" class="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-cine-elevated transition" title="OTA Updates & System Extensions">
-          <i class="ph-bold ph-gear-six text-lg"></i>
-          <span id="updateDotBadge" class="absolute top-1 right-1 h-2 w-2 rounded-full bg-amber-400 animate-ping"></span>
-        </button>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="text-sm md:text-base font-cinzel font-bold tracking-wider text-amber-200">AETHER // CINEMATIC OS</h1>
+          <span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30 font-mono">v3.1 PWA</span>
+        </div>
+        <p id="live-chronometer" class="text-[11px] text-zinc-400 font-mono">00:00:00 // INITIALIZING...</p>
       </div>
     </div>
-    <div class="anamorphic-line w-full"></div>
+
+    <div class="flex items-center space-x-2">
+      <!-- PWA Dedicated Install Trigger (Hidden by default, shown when install is ready) -->
+      <button id="pwa-install-btn" class="hidden items-center space-x-1.5 px-3 py-1.5 rounded-lg btn-gold text-xs shadow-md shadow-amber-500/20" onclick="triggerPWAInstall()">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+        <span>Install App</span>
+      </button>
+
+      <button onclick="triggerDebrief(true)" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-amber-400/30 hover:border-amber-400 text-xs font-mono text-amber-300 bg-amber-950/20 transition-all">
+        <i data-lucide="radio" class="w-3.5 h-3.5 text-amber-400"></i>
+        <span>Debrief</span>
+      </button>
+
+      <button id="speech-toggle" onclick="toggleAudioSentinel()" class="p-2 rounded-lg border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-zinc-200 text-xs transition">
+        <i id="speech-icon" data-lucide="volume-2" class="w-4 h-4 text-cyan-400"></i>
+      </button>
+      
+      <button onclick="openWizard()" class="px-3.5 py-1.5 rounded-lg btn-gold text-xs flex items-center space-x-1.5">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+        <span>Night Prep</span>
+      </button>
+    </div>
   </header>
 
-  <!-- ==================== 3D HOLOGRAPHIC CHRONO VISUALIZER ==================== -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-5 w-full">
-    <div class="relative glass-cine rounded-2xl border border-amber-500/20 overflow-hidden shadow-2xl">
-      <!-- Top Canvas Controls Overlay -->
-      <div class="absolute top-3 left-4 right-4 z-10 flex flex-wrap items-center justify-between pointer-events-none gap-2">
-        <div class="flex items-center gap-2 pointer-events-auto">
-          <span class="text-[10px] font-mono tracking-widest text-amber-400 bg-black/60 px-2 py-1 rounded border border-amber-500/30 uppercase flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-            3D Holographic Core
-          </span>
-          <span id="coreStatusText" class="text-[10px] font-mono text-slate-400 hidden sm:inline bg-black/40 px-2 py-1 rounded border border-slate-700">
-            DRAG TO ORBIT // CLICK TO SHIFT SPECTRUM
-          </span>
-        </div>
-
-        <div class="flex items-center gap-1.5 pointer-events-auto">
-          <button onclick="setVisualizerTheme('amber')" class="px-2 py-0.5 rounded text-[10px] font-mono border border-amber-500/40 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30">
-            SOLAR
-          </button>
-          <button onclick="setVisualizerTheme('teal')" class="px-2 py-0.5 rounded text-[10px] font-mono border border-teal-500/40 bg-teal-500/20 text-teal-300 hover:bg-teal-500/30">
-            TEAL
-          </button>
-          <button onclick="setVisualizerTheme('quantum')" class="px-2 py-0.5 rounded text-[10px] font-mono border border-purple-500/40 bg-purple-500/20 text-purple-300 hover:bg-purple-500/30">
-            QUANTUM
-          </button>
-        </div>
+  <!-- Main Grid Layout -->
+  <main class="relative z-10 max-w-7xl mx-auto px-4 md:px-8 mt-5 space-y-6">
+    
+    <!-- 3D Holographic Core Viewport -->
+    <div class="relative glass-panel rounded-2xl overflow-hidden border border-amber-500/25 h-[230px] md:h-[290px] shadow-2xl">
+      <div id="three-viewport"></div>
+      
+      <!-- Overlay Labels -->
+      <div class="absolute top-3 left-4 pointer-events-none flex items-center space-x-2">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+        <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-300">Chrono Hologram Core</span>
       </div>
 
-      <!-- Canvas Mount -->
-      <div id="canvas3d-container" class="w-full h-44 sm:h-56 relative bg-gradient-to-b from-[#040508] via-[#090d16] to-[#040508]">
-        <!-- 3D Canvas injected via Three.js -->
+      <div class="absolute top-3 right-4 z-10 flex space-x-1.5 bg-black/60 backdrop-blur-md p-1 rounded-lg border border-white/10">
+        <button onclick="setSpectrum('solar')" class="px-2 py-0.5 text-[10px] font-mono rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">Solar</button>
+        <button onclick="setSpectrum('cyan')" class="px-2 py-0.5 text-[10px] font-mono rounded text-zinc-400 hover:text-cyan-300 hover:bg-white/5">Teal</button>
+        <button onclick="setSpectrum('void')" class="px-2 py-0.5 text-[10px] font-mono rounded text-zinc-400 hover:text-violet-300 hover:bg-white/5">Void</button>
       </div>
 
-      <!-- Bottom Status Readout -->
-      <div class="px-4 py-2 border-t border-cine-border/60 bg-black/40 flex flex-wrap items-center justify-between text-[11px] font-mono text-slate-400 gap-2">
-        <div class="flex items-center gap-4">
-          <span>TARGET MATRIX: <span id="hudTomorrowTasksCount" class="text-amber-400 font-bold">0</span> EVENTS</span>
-          <span>MISSED QUEUE: <span id="hudMissedTasksCount" class="text-rose-400 font-bold">0</span> OVERDUE</span>
-          <span class="hidden sm:inline">MEDIA LOCKER: <span id="hudMediaCount" class="text-teal-400 font-bold">0</span> FILES</span>
+      <div class="absolute bottom-3 left-4 right-4 pointer-events-none flex justify-between items-end">
+        <div class="space-y-0.5">
+          <p id="core-summary-tasks" class="text-xs font-mono text-zinc-400">Tomorrow Agenda: <span class="text-amber-300 font-bold">0 Pending</span></p>
+          <p id="core-summary-missed" class="text-xs font-mono text-zinc-400">Overdue Matrix: <span class="text-rose-400 font-bold">0 Tasks</span></p>
         </div>
-        <div id="sleepAdvisoryPill" class="text-slate-400 flex items-center gap-1">
-          <i class="ph ph-moon-stars text-amber-400"></i> NORMAL OPERATIONAL CYCLE
+        <div id="sleep-badge" class="hidden px-2.5 py-1 rounded bg-rose-950/80 border border-rose-500/50 text-rose-300 text-[11px] font-mono animate-bounce">
+          Sleep Guardian: ACTIVE
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- ==================== MAIN WORKSPACE TABS ==================== -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-6">
-
-    <!-- NAVIGATION TABS -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-cine-border">
-      <button onclick="switchTab('tomorrow')" id="tabBtn-tomorrow" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-semibold flex items-center gap-2 bg-amber-500/10 text-amber-400 border border-amber-500/40 transition">
-        <i class="ph-bold ph-calendar-plus text-base"></i>
-        <span>01. TOMORROW PLAN</span>
-        <span id="badge-tomorrow" class="px-1.5 py-0.2 rounded-full bg-amber-950 text-amber-300 text-[10px]">0</span>
+    <!-- Navigation Tabs -->
+    <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+      <button onclick="switchTab('tomorrow')" id="tab-tomorrow" class="nav-tab active glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border">
+        <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+        <span>Tomorrow</span>
       </button>
-
-      <button onclick="switchTab('missed')" id="tabBtn-missed" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
-        <i class="ph-bold ph-alarm text-base text-rose-400"></i>
-        <span>02. MISSED TRIAGE</span>
-        <span id="badge-missed" class="px-1.5 py-0.2 rounded-full bg-rose-950/80 text-rose-300 text-[10px]">0</span>
+      <button onclick="switchTab('missed')" id="tab-missed" class="nav-tab glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border border-zinc-800 text-zinc-400">
+        <i data-lucide="alert-octagon" class="w-4 h-4"></i>
+        <span>Missed</span>
       </button>
-
-      <button onclick="switchTab('media')" id="tabBtn-media" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
-        <i class="ph-bold ph-music-notes text-base text-teal-400"></i>
-        <span>03. MUSIC & FILE VAULT</span>
-        <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30 font-mono">IDB PERM</span>
+      <button onclick="switchTab('vault')" id="tab-vault" class="nav-tab glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border border-zinc-800 text-zinc-400">
+        <i data-lucide="key-round" class="w-4 h-4"></i>
+        <span>Vault</span>
       </button>
-
-      <button onclick="switchTab('notes')" id="tabBtn-notes" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
-        <i class="ph-bold ph-notebook text-base text-emerald-400"></i>
-        <span>04. INTEL NOTES</span>
-        <span id="badge-notes" class="px-1.5 py-0.2 rounded-full bg-emerald-950 text-emerald-300 text-[10px]">0</span>
+      <button onclick="switchTab('media')" id="tab-media" class="nav-tab glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border border-zinc-800 text-zinc-400">
+        <i data-lucide="music-4" class="w-4 h-4"></i>
+        <span>Media &amp; Files</span>
       </button>
-
-      <button onclick="switchTab('credentials')" id="tabBtn-credentials" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
-        <i class="ph-bold ph-shield-check text-base text-amber-400"></i>
-        <span>05. SECRET PASSWORDS</span>
-        <i class="ph ph-lock-key text-xs"></i>
+      <button onclick="switchTab('notes')" id="tab-notes" class="nav-tab glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border border-zinc-800 text-zinc-400">
+        <i data-lucide="file-text" class="w-4 h-4"></i>
+        <span>Intel Notes</span>
       </button>
-
-      <button onclick="switchTab('updates')" id="tabBtn-updates" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
-        <i class="ph-bold ph-sliders-horizontal text-base text-purple-400"></i>
-        <span>06. EXTENSIONS & UPDATES</span>
+      <button onclick="switchTab('ota')" id="tab-ota" class="nav-tab glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border border-zinc-800 text-zinc-400">
+        <i data-lucide="cpu" class="w-4 h-4"></i>
+        <span>OTA Engine</span>
       </button>
     </div>
 
-    <!-- TAB 1: TOMORROW'S TIMELINE -->
-    <section id="tab-tomorrow" class="tab-section flex flex-col lg:flex-row gap-6">
-      <div class="flex-1 space-y-4">
-        <div class="glass-cine p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <!-- Section 1: Tomorrow Programs -->
+    <section id="panel-tomorrow" class="space-y-4">
+      <div class="glass-panel rounded-2xl p-5 border border-zinc-800/80">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
-            <div class="flex items-center gap-2">
-              <span class="h-2 w-2 rounded-full bg-amber-400 animate-ping"></span>
-              <h2 class="text-sm font-bold font-mono tracking-wider uppercase text-white">Tomorrow's Tactical Schedule</h2>
-            </div>
-            <p id="tomorrowFullDate" class="text-xs text-slate-400 font-mono mt-0.5">TARGET: LOADING...</p>
+            <h2 class="text-base font-cinzel font-bold text-amber-200">Tomorrow's Operational Agenda</h2>
+            <p class="text-xs text-zinc-400">Plan and structure upcoming missions and tasks</p>
           </div>
-          <button onclick="openTomorrowModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold font-mono tracking-wider bg-amber-500 hover:bg-amber-400 text-black flex items-center gap-1.5 shadow-anamorphic-amber transition">
-            <i class="ph-bold ph-plus-circle text-base"></i>
-            NEW PROGRAM
+          <button onclick="showAddTaskModal()" class="px-3.5 py-1.5 rounded-lg btn-gold text-xs flex items-center space-x-1.5">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>Add Program</span>
           </button>
         </div>
-
-        <!-- Filter bar -->
-        <div class="flex items-center justify-between gap-2 px-1 text-xs font-mono">
-          <div class="flex items-center gap-1.5">
-            <span class="text-slate-500">FILTER:</span>
-            <button onclick="filterTomorrow('ALL')" id="tFilter-ALL" class="px-2.5 py-1 rounded-lg bg-cine-border text-amber-300 font-semibold">ALL</button>
-            <button onclick="filterTomorrow('HIGH')" id="tFilter-HIGH" class="px-2.5 py-1 rounded-lg hover:bg-cine-elevated text-slate-400">HIGH PRIORITY</button>
-            <button onclick="filterTomorrow('PENDING')" id="tFilter-PENDING" class="px-2.5 py-1 rounded-lg hover:bg-cine-elevated text-slate-400">PENDING</button>
-          </div>
-          <span id="tomorrowTimelineCount" class="text-slate-500">0 PROGRAMS</span>
-        </div>
-
-        <!-- Chrono Timeline Container -->
-        <div id="tomorrowTimelineList" class="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-amber-500 before:via-teal-500 before:to-transparent">
-          <!-- Dynamic Items -->
-        </div>
+        <div id="tomorrow-list" class="space-y-2.5"></div>
       </div>
+    </section>
 
-      <!-- Metrics and EVE Readiness Widget -->
-      <div class="w-full lg:w-80 space-y-4">
-        <div class="glass-cine p-5 rounded-2xl space-y-4 border-l-4 border-l-amber-400">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-mono text-slate-400">PREPAREDNESS INDEX</span>
-            <i class="ph-bold ph-gauge text-amber-400 text-lg"></i>
+    <!-- Section 2: Missed Programs Triage -->
+    <section id="panel-missed" class="hidden space-y-4">
+      <div class="glass-panel rounded-2xl p-5 border border-rose-900/40">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-cinzel font-bold text-rose-300">Missed Program Triage</h2>
+            <p class="text-xs text-zinc-400">Recover missed tasks or forward them into tomorrow's plan</p>
           </div>
-          <div class="flex items-baseline gap-2">
-            <span id="readinessScoreVal" class="text-3xl font-bold font-mono text-white">88%</span>
-            <span id="readinessLabel" class="text-xs text-amber-400 font-mono">LOCKDOWN READY</span>
+        </div>
+        <div id="missed-list" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- Section 3: Credentials Vault -->
+    <section id="panel-vault" class="hidden space-y-4">
+      <div class="glass-panel rounded-2xl p-5 border border-amber-500/20">
+        <div id="vault-locked-state" class="text-center py-10 space-y-4">
+          <div class="w-12 h-12 mx-auto rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+            <i data-lucide="shield-alert" class="w-6 h-6 text-amber-400"></i>
           </div>
-          <div class="w-full bg-cine-elevated h-1.5 rounded-full overflow-hidden">
-            <div id="readinessBar" class="bg-gradient-to-r from-amber-400 to-teal-400 h-full w-[88%] rounded-full transition-all duration-500"></div>
+          <h3 class="font-cinzel text-lg font-bold text-amber-200">Credential Locker Locked</h3>
+          <p class="text-xs text-zinc-400 max-w-sm mx-auto">Enter your 4-digit master PIN. (Default: 1234)</p>
+          <div class="flex justify-center items-center space-x-2">
+            <input type="password" id="vault-pin-input" maxlength="8" placeholder="••••" class="w-32 bg-black/50 border border-zinc-700 text-center text-lg tracking-widest text-amber-300 py-2 rounded-lg focus:outline-none focus:border-amber-400">
+            <button onclick="unlockVault()" class="px-4 py-2 rounded-lg btn-gold text-xs">Unlock</button>
           </div>
-          <p class="text-xs text-slate-400 leading-relaxed font-mono">
-            Planning tasks ahead clears working memory and encourages natural restorative rest.
-          </p>
         </div>
 
-        <div class="glass-card p-4 rounded-2xl border border-cine-border space-y-3">
-          <h3 class="text-xs font-bold font-mono tracking-wider text-slate-300 flex items-center gap-2">
-            <i class="ph-bold ph-crosshair text-teal-400"></i> NIGHT PROTOCOL
-          </h3>
-          <ul class="text-xs space-y-2 text-slate-400">
-            <li class="flex items-center gap-2">
-              <input type="checkbox" id="chkProt1" class="rounded bg-cine-elevated border-cine-border text-amber-400 focus:ring-0">
-              <label for="chkProt1">Triage today's uncompleted items</label>
-            </li>
-            <li class="flex items-center gap-2">
-              <input type="checkbox" id="chkProt2" class="rounded bg-cine-elevated border-cine-border text-amber-400 focus:ring-0">
-              <label for="chkProt2">Check morning meeting credentials</label>
-            </li>
-            <li class="flex items-center gap-2">
-              <input type="checkbox" id="chkProt3" class="rounded bg-cine-elevated border-cine-border text-amber-400 focus:ring-0">
-              <label for="chkProt3">Shutdown screen & initiate sleep cycle</label>
-            </li>
-          </ul>
+        <div id="vault-unlocked-state" class="hidden space-y-4">
+          <div class="flex justify-between items-center pb-3 border-b border-zinc-800">
+            <span class="text-xs font-mono text-emerald-400 flex items-center space-x-1">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+              <span>Vault Decrypted</span>
+            </span>
+            <div class="flex space-x-2">
+              <button onclick="showAddSecretModal()" class="px-3 py-1 rounded-lg btn-gold text-xs">New Credential</button>
+              <button onclick="lockVault()" class="px-3 py-1 rounded-lg border border-zinc-700 text-xs text-zinc-300 hover:bg-zinc-800">Lock</button>
+            </div>
+          </div>
+          <div id="credentials-list" class="grid sm:grid-cols-2 gap-3"></div>
         </div>
       </div>
     </section>
 
-    <!-- TAB 2: MISSED PROGRAMS TRIAGE -->
-    <section id="tab-missed" class="tab-section hidden space-y-4">
-      <div class="glass-cine p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="h-2 w-2 rounded-full bg-rose-500"></span>
-            <h2 class="text-sm font-bold tracking-wide uppercase font-mono text-white">Missed Program Resolution Matrix</h2>
+    <!-- Section 4: IndexedDB Permanent Music & Storage -->
+    <section id="panel-media" class="hidden space-y-4">
+      <div class="glass-panel rounded-2xl p-5 border border-cyan-500/30">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-base font-cinzel font-bold text-cyan-200">Permanent Media &amp; File Vault</h2>
+            <p class="text-xs text-zinc-400">IndexedDB persistent storage. Files stay stored on your local device.</p>
           </div>
-          <p class="text-xs text-slate-400">Review tasks that slipped past. 1-click push them into tomorrow's schedule or dismiss.</p>
-        </div>
-        <button onclick="openMissedModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold font-mono tracking-wider bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 flex items-center gap-1.5 transition">
-          <i class="ph-bold ph-plus-circle text-base"></i>
-          LOG MISSED EVENT
-        </button>
-      </div>
-
-      <div id="missedItemsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Rendered dynamically -->
-      </div>
-    </section>
-
-    <!-- TAB 3: PERMANENT MUSIC & FILE VAULT (IndexedDB) -->
-    <section id="tab-media" class="tab-section hidden space-y-6">
-      <div class="glass-cine p-5 rounded-2xl flex flex-col md:flex-row gap-6 items-center justify-between">
-        <div class="space-y-1">
-          <div class="flex items-center gap-2">
-            <i class="ph-fill ph-hard-drives text-teal-400 text-xl"></i>
-            <h2 class="text-sm font-bold uppercase font-mono text-white tracking-wider">Permanent IndexedDB Media Engine</h2>
-          </div>
-          <p class="text-xs text-slate-400 max-w-xl leading-relaxed">
-            All music tracks, audio assets, and vaulted files are written directly into your local browser IndexedDB storage engine. They persist permanently across restarts and do not consume cloud bandwidth.
-          </p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3">
-          <label class="cursor-pointer px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-mono text-xs font-bold tracking-wide flex items-center gap-2 shadow-anamorphic-amber transition">
-            <i class="ph-bold ph-music-note-simple text-base"></i>
-            <span>ADD AUDIO TRACK</span>
-            <input type="file" id="audioFileInput" accept="audio/*" class="hidden" onchange="handleAudioUpload(event)">
-          </label>
-          <label class="cursor-pointer px-4 py-2.5 rounded-xl bg-cine-elevated hover:bg-cine-border text-teal-300 border border-teal-500/30 font-mono text-xs font-bold tracking-wide flex items-center gap-2 transition">
-            <i class="ph-bold ph-file-arrow-up text-base"></i>
-            <span>VAULT PERMANENT FILE</span>
-            <input type="file" id="generalFileInput" class="hidden" onchange="handleGeneralFileUpload(event)">
+          <label class="px-3.5 py-1.5 rounded-lg btn-gold text-xs flex items-center space-x-1.5 cursor-pointer">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+            <span>Upload File / Music</span>
+            <input type="file" id="media-upload-input" class="hidden" onchange="handleMediaUpload(event)">
           </label>
         </div>
-      </div>
 
-      <!-- EMBEDDED CINEMATIC AUDIO PLAYER -->
-      <div class="glass-card p-5 rounded-2xl border border-teal-500/30 bg-gradient-to-r from-teal-950/20 via-cine-surface to-amber-950/20 shadow-anamorphic-teal space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div id="mediaDiskArt" class="w-12 h-12 rounded-xl bg-teal-900/40 border border-teal-500/50 flex items-center justify-center text-teal-300 text-2xl">
-              <i class="ph-fill ph-disc"></i>
-            </div>
-            <div>
-              <span class="text-[10px] font-mono tracking-widest text-teal-400 uppercase">LOCAL MEDIA ENGINE</span>
-              <h3 id="playerTrackTitle" class="text-sm font-bold text-white truncate max-w-xs sm:max-w-md">No Track Queued</h3>
-              <span id="playerTrackStatus" class="text-xs text-slate-400 font-mono">Select a track below or drop audio</span>
-            </div>
-          </div>
-
-          <!-- Controls -->
-          <div class="flex items-center gap-3 self-center sm:self-auto">
-            <button onclick="rewindAudio(10)" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-cine-elevated transition" title="-10 seconds">
-              <i class="ph-bold ph-arrow-counter-clockwise text-lg"></i>
-            </button>
-            <button id="playerPlayBtn" onclick="togglePlayAudio()" class="w-11 h-11 rounded-xl bg-teal-400 hover:bg-teal-300 text-black flex items-center justify-center transition shadow-anamorphic-teal">
-              <i id="playIcon" class="ph-fill ph-play text-xl ml-0.5"></i>
-            </button>
-            <button onclick="forwardAudio(10)" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-cine-elevated transition" title="+10 seconds">
-              <i class="ph-bold ph-arrow-clockwise text-lg"></i>
-            </button>
-            <div class="flex items-center gap-2 pl-2 border-l border-cine-border">
-              <i class="ph ph-speaker-high text-slate-400 text-sm"></i>
-              <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="0.85" class="w-16 accent-teal-400 h-1 rounded" oninput="changeAudioVolume(this.value)">
-            </div>
-          </div>
-        </div>
-
-        <!-- Audio Progress Bar -->
-        <div class="space-y-1">
-          <div class="flex justify-between text-[11px] font-mono text-slate-400">
-            <span id="playerCurrentTime">00:00</span>
-            <span id="playerDuration">00:00</span>
-          </div>
-          <input type="range" id="audioProgress" min="0" max="100" value="0" class="w-full accent-teal-400 h-1.5 bg-cine-elevated rounded-lg cursor-pointer" oninput="seekAudio(this.value)">
-        </div>
-
-        <audio id="coreAudioElement" class="hidden"></audio>
-      </div>
-
-      <!-- Tracks & Files Columns -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- AUDIO TRACKS -->
-        <div class="space-y-3">
+        <!-- Built-in Cyber Audio Player -->
+        <div class="bg-black/60 border border-cyan-500/20 rounded-xl p-4 mb-5 flex flex-col gap-2">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
-              <i class="ph-bold ph-playlist text-amber-400"></i>
-              Audio Library (<span id="audioCount">0</span>)
-            </h3>
+            <div class="flex items-center space-x-2">
+              <i data-lucide="disc-3" class="w-5 h-5 text-cyan-400 animate-spin" style="animation-duration: 8s;"></i>
+              <span id="player-title" class="text-xs font-mono text-zinc-300">No Audio Selected</span>
+            </div>
+            <span id="player-timer" class="text-[11px] font-mono text-cyan-400">0:00 / 0:00</span>
           </div>
-          <div id="audioListContainer" class="space-y-2 max-h-96 overflow-y-auto pr-1">
-            <!-- Dynamic Audio Tracks -->
-          </div>
+          <audio id="core-audio-element" class="w-full h-8 mt-1 rounded bg-zinc-900"></audio>
         </div>
 
-        <!-- SECURE FILES -->
-        <div class="space-y-3">
-          <div class="flex items-center justify-between">
-            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
-              <i class="ph-bold ph-folder-open text-teal-400"></i>
-              Permanent Files Vault (<span id="fileCount">0</span>)
-            </h3>
-          </div>
-          <div id="fileListContainer" class="space-y-2 max-h-96 overflow-y-auto pr-1">
-            <!-- Dynamic Files -->
-          </div>
-        </div>
+        <div id="media-items-grid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
       </div>
     </section>
 
-    <!-- TAB 4: INTEL NOTES & SCRATCHPAD -->
-    <section id="tab-notes" class="tab-section hidden space-y-4">
-      <div class="glass-cine p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-            <h2 class="text-sm font-bold tracking-wide uppercase font-mono text-white">Encrypted Intel Notes</h2>
-          </div>
-          <p class="text-xs text-slate-400">Fast categorized markdown notes and persistent scratchpad.</p>
-        </div>
-        <button onclick="openNoteModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold font-mono tracking-wider bg-emerald-500 hover:bg-emerald-400 text-black flex items-center gap-1.5 transition">
-          <i class="ph-bold ph-note-pencil text-base"></i>
-          NEW NOTE
-        </button>
-      </div>
-
-      <div class="relative">
-        <i class="ph ph-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
-        <input type="text" id="noteSearchInput" oninput="renderNotes()" placeholder="Search intel notes by tag, title, or keywords..." class="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-cine-elevated border border-cine-border focus:outline-none focus:border-amber-400 text-white font-mono">
-      </div>
-
-      <div id="notesContainerGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Rendered Notes -->
-      </div>
-    </section>
-
-    <!-- TAB 5: SECRET PASSWORDS & CREDENTIALS VAULT -->
-    <section id="tab-credentials" class="tab-section hidden space-y-4">
-      <!-- LOCKED VIEW -->
-      <div id="credentialsLockedScreen" class="glass-cine p-8 rounded-2xl max-w-md mx-auto w-full text-center space-y-5 my-8 border border-amber-500/30">
-        <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto text-3xl shadow-anamorphic-amber">
-          <i class="ph-fill ph-lock-key"></i>
-        </div>
-        <div>
-          <h2 class="text-base font-bold font-mono uppercase tracking-wider text-white">Master Security Clearance</h2>
-          <p class="text-xs text-slate-400 mt-1">Authenticate PIN to access sensitive passwords & tokens.</p>
-        </div>
-
-        <div class="space-y-3">
-          <input type="password" id="vaultMasterPinInput" placeholder="Master PIN (Default: 1234)" maxlength="8" class="w-full text-center text-xl tracking-widest px-4 py-2.5 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-amber-400 font-mono">
-          <button onclick="unlockMasterVault()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs tracking-wider transition flex items-center justify-center gap-2">
-            <i class="ph-bold ph-shield-check text-base"></i>
-            UNLOCK CREDENTIALS
-          </button>
-          <p class="text-[11px] text-slate-500 font-mono">Default PIN: <span class="text-amber-400">1234</span></p>
-        </div>
-      </div>
-
-      <!-- UNLOCKED VIEW -->
-      <div id="credentialsUnlockedScreen" class="hidden space-y-4">
-        <div class="glass-cine p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-amber-500/30">
-          <div class="flex items-center gap-3">
-            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">ACCESS UNLOCKED</span>
-            <h2 class="text-sm font-bold font-mono uppercase tracking-wide text-white">Decrypted Credentials Vault</h2>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="openChangePinModal()" class="px-3 py-1.5 rounded-xl text-xs font-mono font-bold border border-cine-border hover:bg-cine-elevated text-slate-300 transition">
-              UPDATE PIN
-            </button>
-            <button onclick="openAddSecretModal()" class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-amber-500 hover:bg-amber-400 text-black transition flex items-center gap-1">
-              <i class="ph-bold ph-plus-circle text-base"></i> NEW SECRET
-            </button>
-            <button onclick="lockMasterVault()" class="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 transition" title="Lock Vault Now">
-              <i class="ph-bold ph-lock text-lg"></i>
-            </button>
-          </div>
-        </div>
-
-        <div id="vaultSecretsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Dynamically Rendered -->
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB 6: FUTURE APP UPDATES & EXTENSIONS MANAGER -->
-    <section id="tab-updates" class="tab-section hidden space-y-6">
-      <div class="glass-cine p-5 rounded-2xl border border-purple-500/30 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <!-- Section 5: Intel Notes -->
+    <section id="panel-notes" class="hidden space-y-4">
+      <div class="glass-panel rounded-2xl p-5 border border-zinc-800">
+        <div class="flex justify-between items-center mb-4">
           <div>
-            <div class="flex items-center gap-2">
-              <i class="ph-fill ph-cpu text-purple-400 text-xl"></i>
-              <h2 class="text-sm font-bold uppercase font-mono text-white tracking-wider">Aether Core // Update & Extension Engine</h2>
-            </div>
-            <p class="text-xs text-slate-400 mt-1">Modular OTA upgrade pipelines, dynamic schema imports, and future feature flags.</p>
+            <h2 class="text-base font-cinzel font-bold text-amber-200">Intel Scratchpad &amp; Notes</h2>
+            <p class="text-xs text-zinc-400">Persistent field notes &amp; fast memos</p>
           </div>
-
-          <button onclick="checkAppUpdates()" id="btnCheckUpdate" class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-purple-600 hover:bg-purple-500 text-white flex items-center gap-2 transition">
-            <i class="ph-bold ph-arrows-clockwise text-base"></i>
-            <span>CHECK FOR UPDATES</span>
+          <button onclick="showAddNoteModal()" class="px-3.5 py-1.5 rounded-lg btn-gold text-xs flex items-center space-x-1">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>New Note</span>
           </button>
         </div>
-
-        <div id="updateStatusNotice" class="p-3 rounded-xl bg-cine-elevated border border-cine-border text-xs font-mono text-slate-300 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span>AETHER OS v3.0 PRO IS CURRENT. System integrity verified.</span>
-          </div>
-          <span class="text-slate-500 text-[10px]">BUILD: 2026.11.03-RELEASE</span>
-        </div>
+        <div id="notes-grid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
       </div>
+    </section>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Feature Flags -->
-        <div class="glass-card p-5 rounded-2xl border border-cine-border space-y-4">
-          <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
-            <i class="ph-bold ph-toggle-left text-amber-400"></i> Future Feature Flags & Experimental Modules
-          </h3>
-          <p class="text-xs text-slate-400">Toggle capabilities on-the-fly without rebuilding application state.</p>
-
-          <div class="space-y-3 text-xs font-mono">
-            <div class="flex items-center justify-between p-3 rounded-xl bg-cine-surface border border-cine-border">
-              <div>
-                <p class="text-white font-bold">3D Quantum Particles Density</p>
-                <p class="text-[11px] text-slate-400">Increase Three.js particle dust count to 2,500</p>
-              </div>
-              <input type="checkbox" id="flagParticleDensity" onchange="toggleFeatureFlag('highParticles', this.checked)" class="rounded bg-cine-elevated border-cine-border text-amber-400 focus:ring-0">
-            </div>
-
-            <div class="flex items-center justify-between p-3 rounded-xl bg-cine-surface border border-cine-border">
-              <div>
-                <p class="text-white font-bold">Voice Synthesis Sentinel</p>
-                <p class="text-[11px] text-slate-400">Debrief automatically on startup & focus switch</p>
-              </div>
-              <input type="checkbox" id="flagAutoVoice" checked onchange="toggleFeatureFlag('autoVoice', this.checked)" class="rounded bg-cine-elevated border-cine-border text-amber-400 focus:ring-0">
-            </div>
-
-            <div class="flex items-center justify-between p-3 rounded-xl bg-cine-surface border border-cine-border">
-              <div>
-                <p class="text-white font-bold">Auto-Triage Overdue Programs</p>
-                <p class="text-[11px] text-slate-400">Automatically roll past events into missed items at midnight</p>
-              </div>
-              <input type="checkbox" id="flagAutoTriage" checked onchange="toggleFeatureFlag('autoTriage', this.checked)" class="rounded bg-cine-elevated border-cine-border text-amber-400 focus:ring-0">
-            </div>
+    <!-- Section 6: OTA & Extensions -->
+    <section id="panel-ota" class="hidden space-y-4">
+      <div class="glass-panel rounded-2xl p-5 border border-zinc-800 space-y-4">
+        <div>
+          <h2 class="text-base font-cinzel font-bold text-amber-200">OTA Pipeline &amp; System Extensions</h2>
+          <p class="text-xs text-zinc-400">Manage updates, runtime toggles, and JSON data exports</p>
+        </div>
+        <div class="p-3 bg-black/40 rounded-xl border border-zinc-800 text-xs font-mono space-y-2">
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Build Version:</span>
+            <span class="text-amber-300">v3.1-STABLE-PWA</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Database Engine:</span>
+            <span class="text-emerald-400">IndexedDB (Online/Offline Ready)</span>
           </div>
         </div>
-
-        <!-- Custom JSON Schema / Extension Importer -->
-        <div class="glass-card p-5 rounded-2xl border border-cine-border space-y-4">
-          <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
-            <i class="ph-bold ph-package text-teal-400"></i> Dynamic Extension & Backup Importer
-          </h3>
-          <p class="text-xs text-slate-400">Future-proof your OS: Import third-party schemas, additional routines, or restore full system backups.</p>
-
-          <div class="space-y-3">
-            <label class="block w-full border-2 border-dashed border-cine-border hover:border-amber-400/50 rounded-xl p-4 text-center cursor-pointer transition">
-              <i class="ph-bold ph-upload-simple text-2xl text-amber-400 mb-1"></i>
-              <span class="block text-xs font-mono text-slate-300">Choose JSON Extension / Schema File</span>
-              <span class="text-[10px] font-mono text-slate-500">Supports .json system state or modules</span>
-              <input type="file" id="schemaImporterInput" accept=".json" class="hidden" onchange="handleSchemaImport(event)">
-            </label>
-
-            <div class="flex items-center gap-2">
-              <button onclick="exportFullSystemBackup()" class="w-1/2 py-2 rounded-xl bg-cine-elevated hover:bg-cine-border text-amber-300 border border-amber-500/30 text-xs font-mono font-bold transition flex items-center justify-center gap-1.5">
-                <i class="ph-bold ph-download-simple"></i> EXPORT BACKUP
-              </button>
-              <button onclick="downloadStarterPluginTemplate()" class="w-1/2 py-2 rounded-xl bg-cine-elevated hover:bg-cine-border text-slate-300 border border-cine-border text-xs font-mono font-bold transition flex items-center justify-center gap-1.5">
-                <i class="ph-bold ph-code"></i> SAMPLE SCHEMA
-              </button>
-            </div>
-          </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="exportFullBackup()" class="px-3 py-1.5 rounded-lg border border-zinc-700 text-xs text-zinc-300 hover:bg-white/5 font-mono flex items-center space-x-1">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Export Full Backup</span>
+          </button>
+          <button onclick="resetAppDefaults()" class="px-3 py-1.5 rounded-lg border border-rose-900/50 text-xs text-rose-400 hover:bg-rose-950/20 font-mono flex items-center space-x-1">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Restore Defaults</span>
+          </button>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- ==================== SUDDEN OPEN "WHAT HAPPENED" & SLEEP SENTINEL HUD ==================== -->
-  <div id="sentinelDebriefHUD" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="glass-cine max-w-lg w-full rounded-2xl border-2 border-amber-500/50 shadow-anamorphic-amber p-6 space-y-5 relative">
-      <div class="anamorphic-line absolute -top-[1px] left-0 right-0"></div>
-
-      <!-- Header -->
-      <div class="flex items-center justify-between border-b border-cine-border pb-3">
-        <div class="flex items-center gap-2 text-amber-400 font-mono text-xs font-bold uppercase tracking-wider">
-          <i class="ph-fill ph-warning-octagon text-lg text-amber-400 animate-pulse"></i>
-          <span>EXECUTIVE HUD // WHAT HAPPENED</span>
-        </div>
-        <button onclick="closeDebriefHUD()" class="text-slate-400 hover:text-white">
-          <i class="ph-bold ph-x text-lg"></i>
-        </button>
+  <!-- Guided Day Prep Wizard Modal -->
+  <div id="wizard-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-lg rounded-2xl p-6 border border-amber-500/30 space-y-5">
+      <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+        <h3 id="wizard-step-title" class="text-base font-cinzel font-bold text-amber-200">Day Prep Wizard</h3>
+        <button onclick="closeWizard()" class="text-zinc-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-
-      <!-- Sleep Advisory Warning (Highlighted at Night) -->
-      <div id="sleepAdvisoryBanner" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/40 text-xs space-y-1">
-        <div class="flex items-center gap-2 text-amber-400 font-bold font-mono">
-          <i class="ph-fill ph-moon-stars text-base"></i>
-          <span>CIRCADIAN PROTOCOL // LATE HOUR ADVISORY</span>
-        </div>
-        <p class="text-slate-300 leading-relaxed">
-          It is late in the evening. Tomorrow's agenda and credentials are safe and locked into Aether OS. Step away from the screen and get proper sleep.
-        </p>
-      </div>
-
-      <!-- Realtime OS State Summary -->
-      <div class="space-y-3 text-xs">
-        <h4 class="font-mono font-bold uppercase text-slate-400 tracking-wider">System Operational Briefing:</h4>
-        
-        <div class="grid grid-cols-2 gap-3 font-mono">
-          <div class="p-3 rounded-xl bg-cine-elevated border border-cine-border">
-            <span class="text-slate-400 block text-[10px]">TOMORROW'S PLAN</span>
-            <span id="debriefTomorrowCount" class="text-lg font-bold text-amber-400">0 Items</span>
-            <p class="text-[10px] text-slate-500 mt-0.5">Chronologically ordered</p>
-          </div>
-          <div class="p-3 rounded-xl bg-cine-elevated border border-cine-border">
-            <span class="text-slate-400 block text-[10px]">MISSED ITEMS QUEUE</span>
-            <span id="debriefMissedCount" class="text-lg font-bold text-rose-400">0 Overdue</span>
-            <p class="text-[10px] text-slate-500 mt-0.5">Awaiting triage action</p>
-          </div>
-          <div class="p-3 rounded-xl bg-cine-elevated border border-cine-border">
-            <span class="text-slate-400 block text-[10px]">INDEXEDDB STORAGE</span>
-            <span id="debriefMediaCount" class="text-lg font-bold text-teal-400">0 Files</span>
-            <p class="text-[10px] text-slate-500 mt-0.5">Persisted offline</p>
-          </div>
-          <div class="p-3 rounded-xl bg-cine-elevated border border-cine-border">
-            <span class="text-slate-400 block text-[10px]">CREDENTIALS VAULT</span>
-            <span class="text-lg font-bold text-emerald-400">ENCRYPTED</span>
-            <p class="text-[10px] text-slate-500 mt-0.5">Master PIN protected</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Speech Assistant Status -->
-      <div class="p-3 rounded-xl bg-black/50 border border-cine-border flex items-center justify-between text-xs font-mono">
-        <span id="debriefSpeechReadout" class="text-slate-400 flex items-center gap-2 truncate max-w-[280px]">
-          <i class="ph-bold ph-waveform text-amber-400"></i> Synthesizing audio voice debrief...
-        </span>
-        <button onclick="replayVoiceDebrief()" class="text-amber-400 hover:underline text-[11px] flex items-center gap-1">
-          <i class="ph ph-play"></i> REPLAY
-        </button>
-      </div>
-
-      <!-- Dismiss Button -->
-      <div class="flex items-center justify-end gap-3 pt-2 border-t border-cine-border">
-        <button onclick="closeDebriefHUD()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs tracking-wider transition">
-          ACKNOWLEDGE & ENTER DASHBOARD
-        </button>
+      <div id="wizard-step-body" class="text-xs text-zinc-300 min-h-[140px] leading-relaxed"></div>
+      <div class="flex justify-between items-center pt-2">
+        <button id="wizard-prev-btn" onclick="wizardStep(-1)" class="px-3 py-1.5 rounded-lg border border-zinc-700 text-xs text-zinc-400">Previous</button>
+        <span id="wizard-step-indicator" class="text-xs font-mono text-zinc-500">Step 1/3</span>
+        <button id="wizard-next-btn" onclick="wizardStep(1)" class="px-4 py-1.5 rounded-lg btn-gold text-xs">Next</button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== STEP-BY-STEP DAY PREP WIZARD ==================== -->
-  <div id="wizardModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="glass-cine max-w-xl w-full rounded-2xl border border-teal-500/50 shadow-anamorphic-teal p-6 space-y-5">
-      <div class="flex items-center justify-between border-b border-cine-border pb-3">
-        <div class="flex items-center gap-2 text-teal-400 font-mono text-xs font-bold uppercase tracking-wider">
-          <i class="ph-bold ph-flow-arrow text-lg"></i>
-          <span>Step-by-Step Day Preparation Routine</span>
-        </div>
-        <button onclick="closeModal('wizardModal')" class="text-slate-400 hover:text-white">
-          <i class="ph-bold ph-x text-lg"></i>
-        </button>
-      </div>
-
-      <div class="grid grid-cols-4 gap-2 text-center text-[10px] font-mono">
-        <div id="stepDot-1" class="p-2 rounded-lg bg-teal-500/20 text-teal-300 border border-teal-500/40 font-bold">1. MISSED</div>
-        <div id="stepDot-2" class="p-2 rounded-lg bg-cine-elevated text-slate-500 border border-cine-border">2. TOMORROW</div>
-        <div id="stepDot-3" class="p-2 rounded-lg bg-cine-elevated text-slate-500 border border-cine-border">3. SECRETS</div>
-        <div id="stepDot-4" class="p-2 rounded-lg bg-cine-elevated text-slate-500 border border-cine-border">4. MUSIC/FILES</div>
-      </div>
-
-      <!-- Step 1 -->
-      <div id="wizardStep-1" class="wizard-step space-y-3 text-xs">
-        <h3 class="text-sm font-bold text-white uppercase font-mono text-teal-400">Step 1: Overdue Task Triage</h3>
-        <p class="text-slate-300 leading-relaxed">
-          Unburden your conscience. Check overdue or skipped tasks and push priority items directly into tomorrow's plan.
-        </p>
-        <div class="p-3 rounded-xl bg-cine-elevated border border-cine-border flex justify-between items-center">
-          <span class="font-mono text-slate-400">UNRESOLVED MISSED TASKS:</span>
-          <span id="wizardMissedCount" class="font-mono text-rose-400 font-bold">0</span>
-        </div>
-      </div>
-
-      <!-- Step 2 -->
-      <div id="wizardStep-2" class="wizard-step hidden space-y-3 text-xs">
-        <h3 class="text-sm font-bold text-white uppercase font-mono text-teal-400">Step 2: Construct Tomorrow's Schedule</h3>
-        <p class="text-slate-300 leading-relaxed">
-          Lock in morning work blocks, college/work sessions, and gym times. Having a concrete sequence eliminates morning hesitation.
-        </p>
-        <button onclick="closeModal('wizardModal'); openTomorrowModal();" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold">
-          + ADD TOMORROW EVENT
-        </button>
-      </div>
-
-      <!-- Step 3 -->
-      <div id="wizardStep-3" class="wizard-step hidden space-y-3 text-xs">
-        <h3 class="text-sm font-bold text-white uppercase font-mono text-teal-400">Step 3: Stash Credentials & Keys</h3>
-        <p class="text-slate-300 leading-relaxed">
-          Store access tokens or login passwords you will need for tomorrow's assignments or portals.
-        </p>
-        <button onclick="closeModal('wizardModal'); switchTab('credentials');" class="text-amber-400 hover:underline font-mono">
-          Go To Credentials Vault &rarr;
-        </button>
-      </div>
-
-      <!-- Step 4 -->
-      <div id="wizardStep-4" class="wizard-step hidden space-y-3 text-xs">
-        <h3 class="text-sm font-bold text-white uppercase font-mono text-teal-400">Step 4: Load Audio Tracks & Permanent Files</h3>
-        <p class="text-slate-300 leading-relaxed">
-          Save your focus music into IndexedDB so it's ready when you wake up. Then power down and rest.
-        </p>
-        <div class="p-3 rounded-xl bg-cine-elevated border border-cine-border text-center font-mono text-slate-300">
-          ALL SYSTEMS PREPPED. READY FOR SLEEP CYCLE.
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between border-t border-cine-border pt-4">
-        <button id="wizardPrevBtn" onclick="navWizard(-1)" class="px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-slate-400 hover:text-white disabled:opacity-30" disabled>
-          &larr; BACK
-        </button>
-        <button id="wizardNextBtn" onclick="navWizard(1)" class="px-4 py-1.5 rounded-lg text-xs font-mono font-bold bg-teal-400 hover:bg-teal-300 text-black">
-          NEXT STEP &rarr;
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== DATA ENTRY MODALS ==================== -->
-
-  <!-- ADD TOMORROW EVENT MODAL -->
-  <div id="tomorrowModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-cine max-w-md w-full rounded-2xl border border-cine-border p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-cine-border pb-2">
-        <h3 class="font-bold text-xs font-mono uppercase tracking-wider text-white flex items-center gap-2">
-          <i class="ph-bold ph-plus-circle text-amber-400 text-base"></i> Add Tomorrow Event
-        </h3>
-        <button onclick="closeModal('tomorrowModal')" class="text-slate-400 hover:text-white"><i class="ph-bold ph-x"></i></button>
-      </div>
-
-      <form onsubmit="saveTomorrowProgram(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">PROGRAM NAME *</label>
-          <input type="text" id="tProgTitle" required placeholder="e.g., Deep Coding or Lab Analysis" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-amber-400 font-mono">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-mono text-slate-400 mb-1">SCHEDULED TIME *</label>
-            <input type="time" id="tProgTime" required value="09:00" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-amber-400 font-mono">
-          </div>
-          <div>
-            <label class="block font-mono text-slate-400 mb-1">DURATION (MINUTES)</label>
-            <input type="number" id="tProgDuration" value="45" step="5" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-amber-400 font-mono">
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-mono text-slate-400 mb-1">CATEGORY</label>
-            <select id="tProgCategory" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-amber-400 font-mono">
-              <option value="Coding">Coding / Dev</option>
-              <option value="College">College / Study</option>
-              <option value="Work">Executive Work</option>
-              <option value="Health">Fitness / Gym</option>
-              <option value="Music">Music / Media</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-mono text-slate-400 mb-1">PRIORITY</label>
-            <select id="tProgPriority" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-amber-400 font-mono">
-              <option value="HIGH">HIGH (Critical)</option>
-              <option value="MEDIUM" selected>MEDIUM</option>
-              <option value="LOW">LOW</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">DETAILS / REPO LINK</label>
-          <textarea id="tProgDetails" rows="2" placeholder="Links, notes, or execution steps..." class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-amber-400 font-mono"></textarea>
-        </div>
-        <div class="flex justify-end gap-2 pt-2 border-t border-cine-border">
-          <button type="button" onclick="closeModal('tomorrowModal')" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white">Cancel</button>
-          <button type="submit" class="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold">LOCK EVENT</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ADD MISSED MODAL -->
-  <div id="missedModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-cine max-w-md w-full rounded-2xl border border-cine-border p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-cine-border pb-2">
-        <h3 class="font-bold text-xs font-mono uppercase tracking-wider text-rose-300 flex items-center gap-2">
-          <i class="ph-bold ph-alarm text-rose-400 text-base"></i> Record Missed Event
-        </h3>
-        <button onclick="closeModal('missedModal')" class="text-slate-400 hover:text-white"><i class="ph-bold ph-x"></i></button>
-      </div>
-
-      <form onsubmit="saveMissedTask(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">TASK TITLE *</label>
-          <input type="text" id="mTitle" required placeholder="e.g., Complete database indexing experiment" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-rose-400 font-mono">
-        </div>
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">ROOT IMPEDIMENT</label>
-          <input type="text" id="mReason" placeholder="e.g., Heavy shift in priority or network issue" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-rose-400 font-mono">
-        </div>
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">ACTION</label>
-          <select id="mAction" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-rose-400 font-mono">
-            <option value="Reschedule Tomorrow">Push into Tomorrow's Schedule</option>
-            <option value="Archive">Archive / Not critical</option>
-          </select>
-        </div>
-        <div class="flex justify-end gap-2 pt-2 border-t border-cine-border">
-          <button type="button" onclick="closeModal('missedModal')" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white">Cancel</button>
-          <button type="submit" class="px-4 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-mono font-bold">RECORD</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ADD INTEL NOTE MODAL -->
-  <div id="noteModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-cine max-w-md w-full rounded-2xl border border-cine-border p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-cine-border pb-2">
-        <h3 class="font-bold text-xs font-mono uppercase tracking-wider text-emerald-300 flex items-center gap-2">
-          <i class="ph-bold ph-notepad text-emerald-400 text-base"></i> Stash Intel Note
-        </h3>
-        <button onclick="closeModal('noteModal')" class="text-slate-400 hover:text-white"><i class="ph-bold ph-x"></i></button>
-      </div>
-
-      <form onsubmit="saveNote(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">NOTE TITLE *</label>
-          <input type="text" id="nTitle" required placeholder="e.g., API Keys & Token Configuration" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-emerald-400 font-mono">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-mono text-slate-400 mb-1">TAG</label>
-            <input type="text" id="nTag" placeholder="Dev / Strategy / Secret" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-emerald-400 font-mono">
-          </div>
-          <div>
-            <label class="block font-mono text-slate-400 mb-1">CINEMATIC GLOW</label>
-            <select id="nColor" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-emerald-400 font-mono">
-              <option value="amber">Solar Amber</option>
-              <option value="teal">Bioluminescent Teal</option>
-              <option value="emerald">Matrix Emerald</option>
-              <option value="purple">Quantum Violet</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">CONTENT</label>
-          <textarea id="nBody" rows="5" required placeholder="Type notes, commands, instructions..." class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-emerald-400 font-mono"></textarea>
-        </div>
-        <div class="flex justify-end gap-2 pt-2 border-t border-cine-border">
-          <button type="button" onclick="closeModal('noteModal')" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white">Cancel</button>
-          <button type="submit" class="px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold">SAVE</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ADD VAULT SECRET MODAL -->
-  <div id="addSecretModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-cine max-w-md w-full rounded-2xl border border-cine-border p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-cine-border pb-2">
-        <h3 class="font-bold text-xs font-mono uppercase tracking-wider text-amber-300 flex items-center gap-2">
-          <i class="ph-bold ph-key text-amber-400 text-base"></i> Lock Secret Credential
-        </h3>
-        <button onclick="closeModal('addSecretModal')" class="text-slate-400 hover:text-white"><i class="ph-bold ph-x"></i></button>
-      </div>
-
-      <form onsubmit="saveVaultSecret(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">SERVICE / DOMAIN *</label>
-          <input type="text" id="vTitle" required placeholder="e.g., AWS Cloud Console / GitHub" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-amber-400 font-mono">
-        </div>
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">USERNAME / EMAIL</label>
-          <input type="text" id="vUsername" placeholder="alex@domain.org" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-amber-400 font-mono">
-        </div>
-        <div>
-          <div class="flex justify-between items-center mb-1">
-            <label class="font-mono text-slate-400">PASSWORD / PASSKEY *</label>
-            <button type="button" onclick="genStrongPass()" class="text-[10px] text-amber-400 hover:underline font-mono">GENERATE 16-CHAR</button>
-          </div>
-          <div class="relative">
-            <input type="password" id="vPassword" required placeholder="••••••••••••" class="w-full px-3 py-2 pr-10 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-amber-400 font-mono">
-            <button type="button" onclick="togglePassInput('vPassword', 'vPassEye')" class="absolute right-3 top-2 text-slate-400 hover:text-white">
-              <i id="vPassEye" class="ph ph-eye"></i>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">RECOVERY PIN / TOKEN NOTE</label>
-          <input type="text" id="vNotes" placeholder="Optional backup hint..." class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white focus:outline-none focus:border-amber-400 font-mono">
-        </div>
-        <div class="flex justify-end gap-2 pt-2 border-t border-cine-border">
-          <button type="button" onclick="closeModal('addSecretModal')" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white">Cancel</button>
-          <button type="submit" class="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold">LOCK IN VAULT</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- CHANGE PIN MODAL -->
-  <div id="changePinModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass-cine max-w-xs w-full rounded-2xl border border-cine-border p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-cine-border pb-2">
-        <h3 class="font-bold text-xs font-mono uppercase tracking-wider text-white">Update Master PIN</h3>
-        <button onclick="closeModal('changePinModal')" class="text-slate-400 hover:text-white"><i class="ph-bold ph-x"></i></button>
-      </div>
-
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">CURRENT PIN</label>
-          <input type="password" id="curPinInput" maxlength="8" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white font-mono text-center">
-        </div>
-        <div>
-          <label class="block font-mono text-slate-400 mb-1">NEW PIN (4+ DIGITS)</label>
-          <input type="password" id="newPinInput" maxlength="8" class="w-full px-3 py-2 rounded-xl bg-cine-elevated border border-cine-border text-white font-mono text-center">
-        </div>
-        <div class="flex justify-end gap-2 pt-2 border-t border-cine-border">
-          <button onclick="closeModal('changePinModal')" class="px-3 py-1.5 rounded-xl text-slate-400">Cancel</button>
-          <button onclick="saveNewMasterPin()" class="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold">SET PIN</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST NOTIFICATION -->
-  <div id="cyberToast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 glass-cine border border-amber-500/50 text-white px-4 py-2.5 rounded-xl shadow-anamorphic-amber flex items-center gap-2 text-xs font-mono">
-    <i id="toastIcon" class="ph-bold ph-check-circle text-amber-400 text-base"></i>
-    <span id="toastText">System message</span>
-  </div>
-
-  <!-- ==================== THREE.JS 3D ENGINE & CONTROLLER ==================== -->
   <script>
-    // Storage identifiers
-    const LS_TOMORROW = 'aether_tomorrow_v3';
-    const LS_MISSED = 'aether_missed_v3';
-    const LS_NOTES = 'aether_notes_v3';
-    const LS_SECRETS = 'aether_vault_v3';
-    const LS_PIN = 'aether_pin_v3';
-    const LS_FLAGS = 'aether_flags_v3';
-
-    // State
-    let tomorrowItems = [];
-    let missedItems = [];
-    let noteItems = [];
-    let secretItems = [];
-    let masterPin = '1234';
-    let isVaultUnlocked = false;
-    let tomorrowFilter = 'ALL';
-    let wizardCurrentStep = 1;
-    let voiceSynthesisEnabled = true;
-    let featureFlags = {
-      highParticles: false,
-      autoVoice: true,
-      autoTriage: true
-    };
-
-    // IndexedDB permanent storage
-    const IDB_NAME = 'AetherPersistentMedia_v3';
-    const IDB_VERSION = 1;
-    let idb = null;
-
-    // Audio Player
-    const coreAudio = document.getElementById('coreAudioElement');
-    let currentPlayingTrackId = null;
-    let isAudioPlaying = false;
-
-    // Three.js instances
-    let scene, camera, renderer, chronoGroup, particleSystem;
-    let sphereWire, ring1, ring2, ring3, nodeGroup;
-    let isDragging3D = false;
-    let previousMousePosition = { x: 0, y: 0 };
-    let visualizerColor = 0xf59e0b; // Amber default
-
-    // Initialization
-    window.addEventListener('DOMContentLoaded', async () => {
-      startLiveClock();
-      initDates();
-      loadFlags();
-      await initIndexedDB();
-      loadState();
-      renderTomorrowTimeline();
-      renderMissedMatrix();
-      renderNotes();
-      loadStoredMedia();
-      initAudioListeners();
-      initThreeJSVisualizer();
-
-      // Trigger What Happened Sentinel upon sudden open
-      setTimeout(() => {
-        triggerDebriefHUD(false);
-      }, 700);
-    });
-
-    // Handle visibility switch (when user leaves tab and suddenly reopens)
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        const hour = new Date().getHours();
-        if (hour >= 22 || hour < 5) {
-          triggerDebriefHUD(false);
-        }
-      }
-    });
-
-    // Clock
-    function startLiveClock() {
-      const el = document.getElementById('liveHUDClock');
-      function tick() {
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString([], { hour12: false });
-        const dateStr = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-        el.innerHTML = `<span class="text-amber-400 font-bold">${timeStr}</span> // ${dateStr.toUpperCase()}`;
-
-        // Circadian Pill
-        const hour = now.getHours();
-        const pill = document.getElementById('sleepAdvisoryPill');
-        if (hour >= 22 || hour < 5) {
-          pill.innerHTML = `<span class="h-2 w-2 rounded-full bg-rose-500 animate-ping inline-block mr-1"></span> <span class="text-amber-300 font-bold">LATE NIGHT // SLEEP RECOMMENDED</span>`;
-        } else {
-          pill.innerHTML = `<i class="ph ph-sun text-amber-400"></i> NORMAL SOLAR CYCLE`;
-        }
-      }
-      tick();
-      setInterval(tick, 1000);
-    }
-
-    function initDates() {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const str = tomorrow.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-      document.getElementById('tomorrowFullDate').textContent = `TARGET: ${str.toUpperCase()}`;
-    }
-
-    // ================= THREE.JS 3D VISUALIZER =================
-    function initThreeJSVisualizer() {
-      const container = document.getElementById('canvas3d-container');
-      const width = container.clientWidth || 800;
-      const height = container.clientHeight || 220;
-
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-      camera.position.z = 22;
-
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      container.appendChild(renderer.domElement);
-
-      chronoGroup = new THREE.Group();
-      scene.add(chronoGroup);
-
-      // 1. Central Core (Icosahedron wireframe)
-      const geoCore = new THREE.IcosahedronGeometry(4.2, 1);
-      const matCore = new THREE.MeshBasicMaterial({
-        color: visualizerColor,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.65
-      });
-      sphereWire = new THREE.Mesh(geoCore, matCore);
-      chronoGroup.add(sphereWire);
-
-      // Inner glowing core
-      const geoInner = new THREE.SphereGeometry(2.2, 16, 16);
-      const matInner = new THREE.MeshBasicMaterial({
-        color: visualizerColor,
-        wireframe: false,
-        transparent: true,
-        opacity: 0.35
-      });
-      const innerMesh = new THREE.Mesh(geoInner, matInner);
-      chronoGroup.add(innerMesh);
-
-      // 2. Chrono Orbit Rings
-      const ringMat = new THREE.MeshBasicMaterial({
-        color: 0x06b6d4,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.45,
-        wireframe: true
-      });
-
-      ring1 = new THREE.Mesh(new THREE.TorusGeometry(6.2, 0.04, 8, 48), ringMat);
-      ring2 = new THREE.Mesh(new THREE.TorusGeometry(7.5, 0.04, 8, 48), ringMat);
-      ring3 = new THREE.Mesh(new THREE.TorusGeometry(8.8, 0.05, 8, 56), ringMat);
-
-      ring1.rotation.x = Math.PI / 3;
-      ring2.rotation.y = Math.PI / 4;
-      ring3.rotation.z = Math.PI / 6;
-
-      chronoGroup.add(ring1);
-      chronoGroup.add(ring2);
-      chronoGroup.add(ring3);
-
-      // 3. Floating Node Clusters (Representing Tomorrow / Missed Tasks)
-      nodeGroup = new THREE.Group();
-      const nodeGeo = new THREE.BoxGeometry(0.35, 0.35, 0.35);
-      for (let i = 0; i < 16; i++) {
-        const mat = new THREE.MeshBasicMaterial({
-          color: (i % 2 === 0) ? 0xf59e0b : 0x06b6d4,
-          wireframe: true
-        });
-        const node = new THREE.Mesh(nodeGeo, mat);
-        const theta = (i / 16) * Math.PI * 2;
-        const radius = 5.2 + (i % 4) * 0.8;
-        node.position.set(Math.cos(theta) * radius, (Math.sin(theta * 2) * 1.5), Math.sin(theta) * radius);
-        nodeGroup.add(node);
-      }
-      chronoGroup.add(nodeGroup);
-
-      // 4. Stardust Particles
-      createStardust(featureFlags.highParticles ? 2500 : 900);
-
-      // Interaction: Mouse Drag to orbit
-      container.addEventListener('mousedown', (e) => {
-        isDragging3D = true;
-        previousMousePosition = { x: e.clientX, y: e.clientY };
-      });
-      window.addEventListener('mouseup', () => { isDragging3D = false; });
-      window.addEventListener('mousemove', (e) => {
-        if (!isDragging3D) return;
-        const deltaX = e.clientX - previousMousePosition.x;
-        const deltaY = e.clientY - previousMousePosition.y;
-        chronoGroup.rotation.y += deltaX * 0.008;
-        chronoGroup.rotation.x += deltaY * 0.008;
-        previousMousePosition = { x: e.clientX, y: e.clientY };
-      });
-
-      // Touch drag
-      container.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 1) {
-          isDragging3D = true;
-          previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        }
-      });
-      window.addEventListener('touchend', () => { isDragging3D = false; });
-      window.addEventListener('touchmove', (e) => {
-        if (!isDragging3D || e.touches.length === 0) return;
-        const deltaX = e.touches[0].clientX - previousMousePosition.x;
-        const deltaY = e.touches[0].clientY - previousMousePosition.y;
-        chronoGroup.rotation.y += deltaX * 0.009;
-        chronoGroup.rotation.x += deltaY * 0.009;
-        previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      });
-
-      // Resize
-      window.addEventListener('resize', () => {
-        const newW = container.clientWidth;
-        const newH = container.clientHeight;
-        camera.aspect = newW / newH;
-        camera.updateProjectionMatrix();
-        renderer.setSize(newW, newH);
-      });
-
-      animate3D();
-    }
-
-    function createStardust(count) {
-      if (particleSystem) scene.remove(particleSystem);
-      const partGeo = new THREE.BufferGeometry();
-      const positions = new Float32Array(count * 3);
-      for (let i = 0; i < count * 3; i += 3) {
-        positions[i] = (Math.random() - 0.5) * 45;
-        positions[i + 1] = (Math.random() - 0.5) * 35;
-        positions[i + 2] = (Math.random() - 0.5) * 40;
-      }
-      partGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      const partMat = new THREE.PointsMaterial({
-        color: 0x94a3b8,
-        size: 0.12,
-        transparent: true,
-        opacity: 0.45
-      });
-      particleSystem = new THREE.Points(partGeo, partMat);
-      scene.add(particleSystem);
-    }
-
-    function setVisualizerTheme(mode) {
-      if (mode === 'amber') {
-        visualizerColor = 0xf59e0b;
-        sphereWire.material.color.setHex(0xf59e0b);
-        ring1.material.color.setHex(0x06b6d4);
-      } else if (mode === 'teal') {
-        visualizerColor = 0x06b6d4;
-        sphereWire.material.color.setHex(0x06b6d4);
-        ring1.material.color.setHex(0x10b981);
-      } else if (mode === 'quantum') {
-        visualizerColor = 0xa855f7;
-        sphereWire.material.color.setHex(0xa855f7);
-        ring1.material.color.setHex(0xec4899);
-      }
-      showToast(`3D Core Spectrum switched to ${mode.toUpperCase()}`);
-    }
-
-    function animate3D() {
-      requestAnimationFrame(animate3D);
-      if (!isDragging3D) {
-        chronoGroup.rotation.y += 0.003;
-        chronoGroup.rotation.x += 0.001;
-      }
-      if (ring1) ring1.rotation.z += 0.004;
-      if (ring2) ring2.rotation.x -= 0.003;
-      if (ring3) ring3.rotation.y += 0.002;
-      if (nodeGroup) nodeGroup.rotation.y -= 0.005;
-      if (particleSystem) particleSystem.rotation.y += 0.0003;
-      renderer.render(scene, camera);
-    }
-
-    // ================= "WHAT HAPPENED" SENTINEL & SLEEP GUARDIAN =================
-    function triggerDebriefHUD(manual = false) {
-      const hour = new Date().getHours();
-      const isLateNight = (hour >= 22 || hour < 5);
-
-      // Update counters in debrief HUD
-      document.getElementById('debriefTomorrowCount').textContent = `${tomorrowItems.length} Tasks`;
-      document.getElementById('debriefMissedCount').textContent = `${missedItems.length} Overdue`;
-      getAllFromIDB('vault_files').then(files => {
-        document.getElementById('debriefMediaCount').textContent = `${files.length} Vaulted`;
-      });
-
-      const sleepBanner = document.getElementById('sleepAdvisoryBanner');
-      if (isLateNight) {
-        sleepBanner.classList.remove('hidden');
-      } else {
-        sleepBanner.classList.add('hidden');
-      }
-
-      openModal('sentinelDebriefHUD');
-
-      // AI Synthesizer Voice Debrief
-      if (voiceSynthesisEnabled && featureFlags.autoVoice) {
-        speakDebrief(isLateNight);
-      }
-    }
-
-    function speakDebrief(isLateNight) {
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel(); // Stop any pending speech
-
-      let text = `Executive Briefing. You have ${tomorrowItems.length} tasks scheduled for tomorrow, and ${missedItems.length} unresolved missed items. `;
-      if (isLateNight) {
-        text += "Warning: Late hour detected. Your schedule is prepped and locked in Aether OS. It is time to get some sleep and recharge.";
-      } else {
-        text += "All systems are operational and locked.";
-      }
-
-      document.getElementById('debriefSpeechReadout').innerHTML = `<i class="ph-bold ph-waveform text-amber-400 animate-pulse"></i> Speaking: "${text.substring(0, 45)}..."`;
-
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 1.0;
-      utter.pitch = 0.95;
-      utter.onend = () => {
-        document.getElementById('debriefSpeechReadout').innerHTML = `<i class="ph ph-check text-emerald-400"></i> Voice briefing concluded.`;
-      };
-      window.speechSynthesis.speak(utter);
-    }
-
-    function replayVoiceDebrief() {
-      const hour = new Date().getHours();
-      speakDebrief(hour >= 22 || hour < 5);
-    }
-
-    function toggleVoiceSpeech() {
-      voiceSynthesisEnabled = !voiceSynthesisEnabled;
-      const icon = document.getElementById('voiceMuteIcon');
-      if (voiceSynthesisEnabled) {
-        icon.className = 'ph-bold ph-speaker-high text-base text-amber-400';
-        showToast('Voice Synthesizer: ACTIVE');
-      } else {
-        window.speechSynthesis.cancel();
-        icon.className = 'ph-bold ph-speaker-slash text-base text-slate-500';
-        showToast('Voice Synthesizer: MUTED');
-      }
-    }
-
-    function closeDebriefHUD() {
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-      closeModal('sentinelDebriefHUD');
-    }
-
-    // ================= INDEXEDDB INITIALIZATION =================
-    function initIndexedDB() {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(IDB_NAME, IDB_VERSION);
-        req.onupgradeneeded = (e) => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains('media_audio')) {
-            db.createObjectStore('media_audio', { keyPath: 'id' });
-          }
-          if (!db.objectStoreNames.contains('vault_files')) {
-            db.createObjectStore('vault_files', { keyPath: 'id' });
-          }
-        };
-        req.onsuccess = (e) => {
-          idb = e.target.result;
-          resolve(idb);
-        };
-        req.onerror = (e) => {
-          showToast('IndexedDB error', false);
-          reject(e);
-        };
-      });
-    }
-
-    // ================= DATA STATE =================
-    function loadState() {
-      masterPin = localStorage.getItem(LS_PIN) || '1234';
-
-      try {
-        tomorrowItems = JSON.parse(localStorage.getItem(LS_TOMORROW)) || [
-          {
-            id: 't-1',
-            title: 'Core Engine Refactor & Particle Physics',
-            time: '08:30',
-            duration: 90,
-            category: 'Coding',
-            priority: 'HIGH',
-            details: 'Enhance orbital mechanics and verify offline IndexedDB writes.',
-            completed: false
-          },
-          {
-            id: 't-2',
-            title: 'College Lab & Architecture Presentation',
-            time: '11:00',
-            duration: 60,
-            category: 'College',
-            priority: 'HIGH',
-            details: 'Demonstrate holographic timeline and offline credential vault.',
-            completed: false
-          },
-          {
-            id: 't-3',
-            title: 'Anamorphic Soundscape Workout',
-            time: '17:30',
-            duration: 50,
-            category: 'Music',
-            priority: 'MEDIUM',
-            details: 'Stream offline audio from browser partition.',
-            completed: false
-          }
-        ];
-      } catch (e) { tomorrowItems = []; }
-
-      try {
-        missedItems = JSON.parse(localStorage.getItem(LS_MISSED)) || [
-          {
-            id: 'm-1',
-            title: 'Synchronize Cryptographic Node Certs',
-            reason: 'Session delayed past midnight',
-            action: 'Reschedule Tomorrow'
-          }
-        ];
-      } catch (e) { missedItems = []; }
-
-      try {
-        noteItems = JSON.parse(localStorage.getItem(LS_NOTES)) || [
-          {
-            id: 'n-1',
-            title: 'Aether 3D Coordinate Mapping',
-            tag: 'Dev',
-            color: 'teal',
-            body: 'Torus rings rotate along X, Y, Z simultaneously. Particles provide spatial depth.'
-          },
-          {
-            id: 'n-2',
-            title: 'Night Recovery Mandate',
-            tag: 'Health',
-            color: 'amber',
-            body: 'Shut off blue light after 10:30 PM. Let the subconscious integrate complex algorithms.'
-          }
-        ];
-      } catch (e) { noteItems = []; }
-
-      try {
-        secretItems = JSON.parse(localStorage.getItem(LS_SECRETS)) || [
-          {
-            id: 's-1',
-            title: 'Master GitHub Deploy Key',
-            username: 'aether_pilot',
-            password: 'ghp_AetherQuantum99!SecKey',
-            notes: 'Production build pipelines'
-          }
-        ];
-      } catch (e) { secretItems = []; }
-
-      updateHUDMetrics();
-    }
-
-    function saveState(key) {
-      if (key === 'tomorrow') localStorage.setItem(LS_TOMORROW, JSON.stringify(tomorrowItems));
-      if (key === 'missed') localStorage.setItem(LS_MISSED, JSON.stringify(missedItems));
-      if (key === 'notes') localStorage.setItem(LS_NOTES, JSON.stringify(noteItems));
-      if (key === 'secrets') localStorage.setItem(LS_SECRETS, JSON.stringify(secretItems));
-      updateHUDMetrics();
-    }
-
-    function updateHUDMetrics() {
-      document.getElementById('badge-tomorrow').textContent = tomorrowItems.length;
-      document.getElementById('badge-missed').textContent = missedItems.length;
-      document.getElementById('badge-notes').textContent = noteItems.length;
-      document.getElementById('hudTomorrowTasksCount').textContent = tomorrowItems.length;
-      document.getElementById('hudMissedTasksCount').textContent = missedItems.length;
-      document.getElementById('tomorrowTimelineCount').textContent = `${tomorrowItems.length} PROGRAMS`;
-
-      // Readiness score calculation
-      const total = tomorrowItems.length;
-      const penalty = Math.min(missedItems.length * 12, 45);
-      let score = 100 - penalty;
-      if (score < 25) score = 25;
-      document.getElementById('readinessScoreVal').textContent = `${score}%`;
-      document.getElementById('readinessBar').style.width = `${score}%`;
-      document.getElementById('readinessLabel').textContent = score > 75 ? 'LOCKDOWN READY' : 'TRIAGE REQUIRED';
-    }
-
-    // ================= TAB NAVIGATION =================
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('bg-amber-500/10', 'text-amber-400', 'border-amber-500/40', 'font-semibold');
-        btn.classList.add('text-slate-400', 'border-transparent');
-      });
-
-      const section = document.getElementById(`tab-${tabId}`);
-      const btn = document.getElementById(`tabBtn-${tabId}`);
-      if (section) section.classList.remove('hidden');
-      if (btn) {
-        btn.classList.add('bg-amber-500/10', 'text-amber-400', 'border-amber-500/40', 'font-semibold');
-        btn.classList.remove('text-slate-400', 'border-transparent');
-      }
-
-      if (tabId === 'credentials' && isVaultUnlocked) {
-        renderVaultSecrets();
-      }
-    }
-
-    // ================= TOMORROW TIMELINE =================
-    function renderTomorrowTimeline() {
-      const listEl = document.getElementById('tomorrowTimelineList');
-      listEl.innerHTML = '';
-
-      let items = [...tomorrowItems];
-      items.sort((a, b) => a.time.localeCompare(b.time));
-
-      if (tomorrowFilter === 'HIGH') items = items.filter(i => i.priority === 'HIGH');
-      if (tomorrowFilter === 'PENDING') items = items.filter(i => !i.completed);
-
-      if (items.length === 0) {
-        listEl.innerHTML = `
-          <div class="glass-card p-8 rounded-2xl border border-dashed border-cine-border text-center">
-            <i class="ph ph-calendar-blank text-3xl text-slate-500 mb-2"></i>
-            <p class="text-xs font-mono text-slate-300">NO PROGRAMS CURRENTLY MATCH CRITERIA</p>
-          </div>
-        `;
-        return;
-      }
-
-      items.forEach(item => {
-        const card = document.createElement('div');
-        card.className = `relative glass-card p-4 rounded-2xl border transition-all duration-200 ${
-          item.completed ? 'opacity-50 border-cine-border bg-black/40' : 'border-cine-border/80 hover:border-amber-500/50 hover:shadow-anamorphic-amber'
-        }`;
-
-        const priorityBadgeClass = {
-          HIGH: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
-          MEDIUM: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
-          LOW: 'bg-slate-700/50 text-slate-300 border-slate-600',
-        }[item.priority] || 'bg-slate-700 text-slate-300';
-
-        card.innerHTML = `
-          <span class="absolute -left-[30px] sm:-left-[38px] top-6 w-3 h-3 rounded-full border-2 ${
-            item.completed ? 'bg-slate-800 border-slate-600' : 'bg-amber-400 border-black shadow-anamorphic-amber'
-          }"></span>
-
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-start gap-3 flex-1">
-              <button onclick="toggleTomorrowDone('${item.id}')" class="mt-0.5 w-5 h-5 rounded-lg border flex items-center justify-center transition ${
-                item.completed ? 'bg-amber-400 border-amber-400 text-black' : 'border-slate-600 hover:border-amber-400'
-              }">
-                ${item.completed ? '<i class="ph-bold ph-check text-xs"></i>' : ''}
-              </button>
-
-              <div class="space-y-1">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="font-mono text-xs font-bold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/30">
-                    ${item.time} // ${item.duration}m
-                  </span>
-                  <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${priorityBadgeClass}">
-                    ${item.priority}
-                  </span>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cine-elevated text-slate-400">
-                    #${item.category}
-                  </span>
-                </div>
-                <h4 class="text-sm font-bold text-white ${item.completed ? 'line-through text-slate-500' : ''}">
-                  ${escapeHtml(item.title)}
-                </h4>
-                ${item.details ? `<p class="text-xs text-slate-400 font-mono">${escapeHtml(item.details)}</p>` : ''}
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 self-end sm:self-center">
-              <button onclick="shiftTomorrowToMissed('${item.id}')" title="Push into Missed Triage" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-cine-elevated transition">
-                <i class="ph-bold ph-arrow-down-right text-base"></i>
-              </button>
-              <button onclick="deleteTomorrowItem('${item.id}')" title="Remove" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-500 hover:bg-cine-elevated transition">
-                <i class="ph-bold ph-trash text-base"></i>
-              </button>
-            </div>
-          </div>
-        `;
-        listEl.appendChild(card);
-      });
-    }
-
-    function toggleTomorrowDone(id) {
-      const idx = tomorrowItems.findIndex(i => i.id === id);
-      if (idx !== -1) {
-        tomorrowItems[idx].completed = !tomorrowItems[idx].completed;
-        saveState('tomorrow');
-        renderTomorrowTimeline();
-        showToast(tomorrowItems[idx].completed ? 'Event marked complete' : 'Event reset to active');
-      }
-    }
-
-    function filterTomorrow(f) {
-      tomorrowFilter = f;
-      ['ALL', 'HIGH', 'PENDING'].forEach(key => {
-        const btn = document.getElementById(`tFilter-${key}`);
-        if (btn) {
-          if (key === f) {
-            btn.className = 'px-2.5 py-1 rounded-lg bg-cine-border text-amber-300 font-semibold';
-          } else {
-            btn.className = 'px-2.5 py-1 rounded-lg hover:bg-cine-elevated text-slate-400';
-          }
-        }
-      });
-      renderTomorrowTimeline();
-    }
-
-    function saveTomorrowProgram(e) {
-      e.preventDefault();
-      const title = document.getElementById('tProgTitle').value.trim();
-      const time = document.getElementById('tProgTime').value;
-      const duration = parseInt(document.getElementById('tProgDuration').value, 10) || 30;
-      const category = document.getElementById('tProgCategory').value;
-      const priority = document.getElementById('tProgPriority').value;
-      const details = document.getElementById('tProgDetails').value.trim();
-
-      tomorrowItems.push({
-        id: 't-' + Date.now(),
-        title,
-        time,
-        duration,
-        category,
-        priority,
-        details,
-        completed: false
-      });
-
-      saveState('tomorrow');
-      renderTomorrowTimeline();
-      closeModal('tomorrowModal');
-      document.getElementById('tProgTitle').value = '';
-      document.getElementById('tProgDetails').value = '';
-      showToast('Tomorrow program locked into timeline');
-    }
-
-    function deleteTomorrowItem(id) {
-      tomorrowItems = tomorrowItems.filter(i => i.id !== id);
-      saveState('tomorrow');
-      renderTomorrowTimeline();
-      showToast('Program removed');
-    }
-
-    function shiftTomorrowToMissed(id) {
-      const item = tomorrowItems.find(i => i.id === id);
-      if (!item) return;
-
-      missedItems.push({
-        id: 'm-' + Date.now(),
-        title: item.title,
-        reason: 'Shifted during timeline review',
-        action: 'Reschedule Tomorrow'
-      });
-
-      tomorrowItems = tomorrowItems.filter(i => i.id !== id);
-      saveState('tomorrow');
-      saveState('missed');
-      renderTomorrowTimeline();
-      renderMissedMatrix();
-      showToast('Shifted to Missed Triage');
-    }
-
-    // ================= MISSED PROGRAMS MATRIX =================
-    function renderMissedMatrix() {
-      const container = document.getElementById('missedItemsGrid');
-      container.innerHTML = '';
-
-      if (missedItems.length === 0) {
-        container.innerHTML = `
-          <div class="col-span-full glass-card p-12 rounded-2xl border border-dashed border-cine-border text-center">
-            <i class="ph-bold ph-check-circle text-4xl text-teal-400 mb-2"></i>
-            <h4 class="text-sm font-mono font-bold text-white uppercase">All Tasks Resolved</h4>
-            <p class="text-xs text-slate-400 mt-1">Zero pending overdue backlog in this partition.</p>
-          </div>
-        `;
-        return;
-      }
-
-      missedItems.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'glass-card p-4 rounded-2xl border border-rose-500/20 hover:border-rose-500/50 transition-all flex flex-col justify-between space-y-3';
-        card.innerHTML = `
-          <div class="space-y-1.5">
-            <div class="flex items-center justify-between">
-              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-500/30">
-                OVERDUE
-              </span>
-              <button onclick="deleteMissedItem('${item.id}')" class="text-slate-500 hover:text-rose-400 transition" title="Archive / Dismiss">
-                <i class="ph-bold ph-trash text-sm"></i>
-              </button>
-            </div>
-            <h4 class="text-sm font-bold text-white leading-tight">${escapeHtml(item.title)}</h4>
-            ${item.reason ? `<p class="text-xs text-slate-400"><span class="text-rose-400 font-mono">Impediment:</span> ${escapeHtml(item.reason)}</p>` : ''}
-          </div>
-
-          <div class="pt-2 border-t border-cine-border flex items-center justify-between gap-2">
-            <span class="text-[10px] font-mono text-slate-500 truncate">${escapeHtml(item.action)}</span>
-            <button onclick="pushMissedToTomorrow('${item.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 transition flex items-center gap-1">
-              <i class="ph-bold ph-arrow-counter-clockwise"></i> PUSH TO TOMORROW
-            </button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function saveMissedTask(e) {
-      e.preventDefault();
-      const title = document.getElementById('mTitle').value.trim();
-      const reason = document.getElementById('mReason').value.trim();
-      const action = document.getElementById('mAction').value;
-
-      missedItems.push({
-        id: 'm-' + Date.now(),
-        title,
-        reason,
-        action
-      });
-
-      saveState('missed');
-      renderMissedMatrix();
-      closeModal('missedModal');
-      document.getElementById('mTitle').value = '';
-      document.getElementById('mReason').value = '';
-      showToast('Missed event recorded');
-    }
-
-    function pushMissedToTomorrow(id) {
-      const task = missedItems.find(m => m.id === id);
-      if (!task) return;
-
-      tomorrowItems.push({
-        id: 't-' + Date.now(),
-        title: task.title,
-        time: '10:00',
-        duration: 35,
-        category: 'Work',
-        priority: 'HIGH',
-        details: task.reason ? `Carried forward: ${task.reason}` : 'Rescheduled from missed matrix',
-        completed: false
-      });
-
-      missedItems = missedItems.filter(m => m.id !== id);
-      saveState('tomorrow');
-      saveState('missed');
-      renderTomorrowTimeline();
-      renderMissedMatrix();
-      showToast('Pushed into Tomorrow Schedule at 10:00 AM');
-    }
-
-    function deleteMissedItem(id) {
-      missedItems = missedItems.filter(m => m.id !== id);
-      saveState('missed');
-      renderMissedMatrix();
-      showToast('Missed item dismissed');
-    }
-
-    // ================= PERMANENT INDEXEDDB MEDIA ENGINE =================
-    async function handleAudioUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const track = {
-        id: 'audio-' + Date.now(),
-        name: file.name.replace(/\.[^/.]+$/, ""),
-        type: file.type || 'audio/mp3',
-        size: formatBytes(file.size),
-        blob: file, // Permanent binary storage
-        timestamp: new Date().toISOString()
-      };
-
-      await storeItemInIDB('media_audio', track);
-      showToast(`Audio track "${track.name}" saved permanently in IndexedDB!`);
-      loadStoredMedia();
-      event.target.value = '';
-    }
-
-    async function handleGeneralFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const fileRecord = {
-        id: 'file-' + Date.now(),
-        name: file.name,
-        type: file.type || 'application/octet-stream',
-        size: formatBytes(file.size),
-        blob: file, // Permanent storage
-        timestamp: new Date().toISOString()
-      };
-
-      await storeItemInIDB('vault_files', fileRecord);
-      showToast(`File "${file.name}" locked into permanent storage`);
-      loadStoredMedia();
-      event.target.value = '';
-    }
-
-    function storeItemInIDB(storeName, item) {
-      return new Promise((resolve, reject) => {
-        const tx = idb.transaction(storeName, 'readwrite');
-        const store = tx.objectStore(storeName);
-        store.put(item);
-        tx.oncomplete = () => resolve(true);
-        tx.onerror = (e) => reject(e);
-      });
-    }
-
-    function getAllFromIDB(storeName) {
-      return new Promise((resolve, reject) => {
-        if (!idb) return resolve([]);
-        const tx = idb.transaction(storeName, 'readonly');
-        const store = tx.objectStore(storeName);
-        const req = store.getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = (e) => reject(e);
-      });
-    }
-
-    function deleteFromIDB(storeName, id) {
-      return new Promise((resolve, reject) => {
-        const tx = idb.transaction(storeName, 'readwrite');
-        const store = tx.objectStore(storeName);
-        store.delete(id);
-        tx.oncomplete = () => resolve(true);
-        tx.onerror = (e) => reject(e);
-      });
-    }
-
-    async function loadStoredMedia() {
-      if (!idb) return;
-
-      // Tracks
-      const tracks = await getAllFromIDB('media_audio');
-      document.getElementById('audioCount').textContent = tracks.length;
-      const audioContainer = document.getElementById('audioListContainer');
-      audioContainer.innerHTML = '';
-
-      if (tracks.length === 0) {
-        audioContainer.innerHTML = `
-          <div class="glass-card p-6 rounded-xl border border-dashed border-cine-border text-center text-xs text-slate-500 font-mono">
-            No audio tracks in IndexedDB locker. Click "ADD AUDIO TRACK" above.
-          </div>
-        `;
-      } else {
-        tracks.forEach(track => {
-          const item = document.createElement('div');
-          const isCurrent = currentPlayingTrackId === track.id && isAudioPlaying;
-          item.className = `p-3 rounded-xl glass-card flex items-center justify-between gap-3 border transition ${
-            isCurrent ? 'border-teal-400 bg-teal-950/20' : 'border-cine-border hover:border-amber-500/40'
-          }`;
-
-          item.innerHTML = `
-            <div class="flex items-center gap-3 truncate">
-              <button onclick="playTrackById('${track.id}')" class="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-300 hover:bg-teal-500 hover:text-black flex items-center justify-center transition">
-                <i class="ph-fill ${isCurrent ? 'ph-pause' : 'ph-play'} text-sm"></i>
-              </button>
-              <div class="truncate">
-                <h5 class="text-xs font-bold text-white truncate">${escapeHtml(track.name)}</h5>
-                <span class="text-[10px] font-mono text-slate-400">${track.size}</span>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <button onclick="deleteAudioTrack('${track.id}')" class="text-slate-500 hover:text-rose-400 p-1" title="Delete Track">
-                <i class="ph-bold ph-trash text-sm"></i>
-              </button>
-            </div>
-          `;
-          audioContainer.appendChild(item);
-        });
-      }
-
-      // Vault Files
-      const files = await getAllFromIDB('vault_files');
-      document.getElementById('fileCount').textContent = files.length;
-      document.getElementById('hudMediaCount').textContent = files.length;
-      const fileContainer = document.getElementById('fileListContainer');
-      fileContainer.innerHTML = '';
-
-      if (files.length === 0) {
-        fileContainer.innerHTML = `
-          <div class="glass-card p-6 rounded-xl border border-dashed border-cine-border text-center text-xs text-slate-500 font-mono">
-            Zero documents vaulted. Click "VAULT PERMANENT FILE" to add records.
-          </div>
-        `;
-      } else {
-        files.forEach(f => {
-          const item = document.createElement('div');
-          item.className = 'p-3 rounded-xl glass-card flex items-center justify-between gap-3 border border-cine-border hover:border-teal-500/40 transition';
-          item.innerHTML = `
-            <div class="flex items-center gap-3 truncate">
-              <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center">
-                <i class="ph-bold ph-file-text text-base"></i>
-              </div>
-              <div class="truncate">
-                <h5 class="text-xs font-bold text-white truncate">${escapeHtml(f.name)}</h5>
-                <span class="text-[10px] font-mono text-slate-400">${f.size}</span>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <button onclick="downloadVaultFile('${f.id}')" class="text-teal-400 hover:text-teal-300 p-1" title="Download">
-                <i class="ph-bold ph-download-simple text-base"></i>
-              </button>
-              <button onclick="deleteVaultFile('${f.id}')" class="text-slate-500 hover:text-rose-400 p-1" title="Delete">
-                <i class="ph-bold ph-trash text-base"></i>
-              </button>
-            </div>
-          `;
-          fileContainer.appendChild(item);
-        });
-      }
-    }
-
-    async function playTrackById(id) {
-      if (!idb) return;
-      const tx = idb.transaction('media_audio', 'readonly');
-      const store = tx.objectStore('media_audio');
-      const req = store.get(id);
-
-      req.onsuccess = () => {
-        const track = req.result;
-        if (!track) return;
-
-        if (currentPlayingTrackId === id && isAudioPlaying) {
-          coreAudio.pause();
-          isAudioPlaying = false;
-          updatePlayerUI();
-          loadStoredMedia();
-          return;
-        }
-
-        const audioUrl = URL.createObjectURL(track.blob);
-        coreAudio.src = audioUrl;
-        currentPlayingTrackId = id;
-        document.getElementById('playerTrackTitle').textContent = track.name;
-        document.getElementById('playerTrackStatus').textContent = `IndexedDB Stored (${track.size})`;
-        coreAudio.play();
-        isAudioPlaying = true;
-        updatePlayerUI();
-        loadStoredMedia();
-      };
-    }
-
-    function togglePlayAudio() {
-      if (!coreAudio.src) {
-        showToast('Choose or upload a track below first', false);
-        return;
-      }
-      if (isAudioPlaying) {
-        coreAudio.pause();
-        isAudioPlaying = false;
-      } else {
-        coreAudio.play();
-        isAudioPlaying = true;
-      }
-      updatePlayerUI();
-      loadStoredMedia();
-    }
-
-    function updatePlayerUI() {
-      const playIcon = document.getElementById('playIcon');
-      const disk = document.getElementById('mediaDiskArt');
-      if (isAudioPlaying) {
-        playIcon.className = 'ph-fill ph-pause text-xl';
-        disk.classList.add('animate-spin');
-      } else {
-        playIcon.className = 'ph-fill ph-play text-xl ml-0.5';
-        disk.classList.remove('animate-spin');
-      }
-    }
-
-    function initAudioListeners() {
-      coreAudio.addEventListener('timeupdate', () => {
-        const cur = coreAudio.currentTime || 0;
-        const dur = coreAudio.duration || 1;
-        document.getElementById('playerCurrentTime').textContent = formatTime(cur);
-        document.getElementById('playerDuration').textContent = formatTime(dur);
-        document.getElementById('audioProgress').value = (cur / dur) * 100;
-      });
-
-      coreAudio.addEventListener('ended', () => {
-        isAudioPlaying = false;
-        updatePlayerUI();
-        loadStoredMedia();
-      });
-    }
-
-    function seekAudio(percent) {
-      if (coreAudio.duration) {
-        coreAudio.currentTime = (percent / 100) * coreAudio.duration;
-      }
-    }
-
-    function rewindAudio(sec) {
-      if (coreAudio.currentTime) {
-        coreAudio.currentTime = Math.max(0, coreAudio.currentTime - sec);
-      }
-    }
-
-    function forwardAudio(sec) {
-      if (coreAudio.currentTime && coreAudio.duration) {
-        coreAudio.currentTime = Math.min(coreAudio.duration, coreAudio.currentTime + sec);
-      }
-    }
-
-    function changeAudioVolume(val) {
-      coreAudio.volume = parseFloat(val);
-    }
-
-    async function deleteAudioTrack(id) {
-      if (currentPlayingTrackId === id) {
-        coreAudio.pause();
-        coreAudio.src = '';
-        isAudioPlaying = false;
-        document.getElementById('playerTrackTitle').textContent = 'No Track Queued';
-        updatePlayerUI();
-      }
-      await deleteFromIDB('media_audio', id);
-      showToast('Audio track purged from storage');
-      loadStoredMedia();
-    }
-
-    async function downloadVaultFile(id) {
-      const tx = idb.transaction('vault_files', 'readonly');
-      const store = tx.objectStore('vault_files');
-      const req = store.get(id);
-      req.onsuccess = () => {
-        const f = req.result;
-        if (!f) return;
-        const url = URL.createObjectURL(f.blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = f.name;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      };
-    }
-
-    async function deleteVaultFile(id) {
-      await deleteFromIDB('vault_files', id);
-      showToast('File erased from IndexedDB');
-      loadStoredMedia();
-    }
-
-    // ================= INTEL NOTES =================
-    function renderNotes() {
-      const container = document.getElementById('notesContainerGrid');
-      const search = (document.getElementById('noteSearchInput').value || '').toLowerCase();
-      container.innerHTML = '';
-
-      const filtered = noteItems.filter(n => {
-        return n.title.toLowerCase().includes(search) ||
-               (n.tag && n.tag.toLowerCase().includes(search)) ||
-               n.body.toLowerCase().includes(search);
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="col-span-full glass-card p-8 rounded-2xl border border-dashed border-cine-border text-center text-xs text-slate-500 font-mono">
-            No notes match current query. Tap "NEW NOTE" to create.
-          </div>
-        `;
-        return;
-      }
-
-      const colorMap = {
-        amber: 'border-amber-500/40 text-amber-400 bg-amber-950/20',
-        teal: 'border-teal-500/40 text-teal-400 bg-teal-950/20',
-        emerald: 'border-emerald-500/40 text-emerald-400 bg-emerald-950/20',
-        purple: 'border-purple-500/40 text-purple-400 bg-purple-950/20',
-      };
-
-      filtered.forEach(note => {
-        const card = document.createElement('div');
-        const accent = colorMap[note.color] || colorMap.amber;
-        card.className = `glass-card p-4 rounded-2xl border ${accent} space-y-3 flex flex-col justify-between`;
-        card.innerHTML = `
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${accent}">
-                #${escapeHtml(note.tag || 'GENERAL')}
-              </span>
-              <button onclick="deleteNote('${note.id}')" class="text-slate-500 hover:text-rose-400 transition" title="Delete Note">
-                <i class="ph-bold ph-trash text-sm"></i>
-              </button>
-            </div>
-            <h4 class="text-sm font-bold text-white leading-tight">${escapeHtml(note.title)}</h4>
-            <p class="text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed">${escapeHtml(note.body)}</p>
-          </div>
-          <div class="pt-2 border-t border-cine-border/40 flex justify-between items-center text-[10px] text-slate-500 font-mono">
-            <span>PERMANENT INTEL</span>
-            <button onclick="copyToClipboard('${escapeAttr(note.body)}', 'Note Content')" class="hover:text-amber-400 flex items-center gap-1">
-              <i class="ph ph-copy"></i> COPY
-            </button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function saveNote(e) {
-      e.preventDefault();
-      const title = document.getElementById('nTitle').value.trim();
-      const tag = document.getElementById('nTag').value.trim();
-      const color = document.getElementById('nColor').value;
-      const body = document.getElementById('nBody').value.trim();
-
-      noteItems.unshift({
-        id: 'n-' + Date.now(),
-        title,
-        tag,
-        color,
-        body
-      });
-
-      saveState('notes');
-      renderNotes();
-      closeModal('noteModal');
-      document.getElementById('nTitle').value = '';
-      document.getElementById('nTag').value = '';
-      document.getElementById('nBody').value = '';
-      showToast('Intel note pinned');
-    }
-
-    function deleteNote(id) {
-      noteItems = noteItems.filter(n => n.id !== id);
-      saveState('notes');
-      renderNotes();
-      showToast('Note deleted');
-    }
-
-    // ================= SECRET CREDENTIALS VAULT =================
-    function unlockMasterVault() {
-      const pin = document.getElementById('vaultMasterPinInput').value;
-      if (pin === masterPin) {
-        isVaultUnlocked = true;
-        document.getElementById('credentialsLockedScreen').classList.add('hidden');
-        document.getElementById('credentialsUnlockedScreen').classList.remove('hidden');
-        renderVaultSecrets();
-        document.getElementById('vaultMasterPinInput').value = '';
-        showToast('Credentials decrypted');
-      } else {
-        showToast('Master PIN invalid', false);
-        document.getElementById('vaultMasterPinInput').value = '';
-        document.getElementById('vaultMasterPinInput').focus();
-      }
-    }
-
-    function lockMasterVault() {
-      isVaultUnlocked = false;
-      document.getElementById('credentialsUnlockedScreen').classList.add('hidden');
-      document.getElementById('credentialsLockedScreen').classList.remove('hidden');
-      showToast('Vault re-secured');
-    }
-
-    function renderVaultSecrets() {
-      const listEl = document.getElementById('vaultSecretsList');
-      listEl.innerHTML = '';
-
-      if (secretItems.length === 0) {
-        listEl.innerHTML = `
-          <div class="col-span-full glass-card p-8 rounded-2xl border border-dashed border-cine-border text-center text-xs font-mono text-slate-400">
-            Vault empty. Tap "NEW SECRET" to store keys.
-          </div>
-        `;
-        return;
-      }
-
-      secretItems.forEach(sec => {
-        const card = document.createElement('div');
-        card.className = 'glass-card p-4 rounded-2xl border border-amber-500/20 hover:border-amber-500/50 space-y-3';
-        card.innerHTML = `
-          <div class="flex items-start justify-between">
-            <div>
-              <h4 class="text-sm font-bold text-white">${escapeHtml(sec.title)}</h4>
-              ${sec.notes ? `<p class="text-[11px] text-slate-400 mt-0.5 font-mono">${escapeHtml(sec.notes)}</p>` : ''}
-            </div>
-            <button onclick="deleteVaultSecret('${sec.id}')" class="text-slate-500 hover:text-rose-400" title="Delete secret">
-              <i class="ph-bold ph-trash text-sm"></i>
-            </button>
-          </div>
-
-          <div class="space-y-2 text-xs font-mono">
-            ${sec.username ? `
-              <div class="flex items-center justify-between p-2 rounded-lg bg-cine-elevated border border-cine-border">
-                <span class="text-slate-400 truncate max-w-[170px]">${escapeHtml(sec.username)}</span>
-                <button onclick="copyToClipboard('${escapeAttr(sec.username)}', 'Username')" class="text-amber-400 hover:text-amber-300">
-                  <i class="ph-bold ph-copy text-sm"></i>
-                </button>
-              </div>
-            ` : ''}
-
-            <div class="flex items-center justify-between p-2 rounded-lg bg-cine-elevated border border-cine-border">
-              <span id="pwMask-${sec.id}" class="text-slate-200 tracking-wider">••••••••••••</span>
-              <div class="flex items-center gap-2">
-                <button onclick="toggleSecretMask('${sec.id}', '${escapeAttr(sec.password)}')" class="text-slate-400 hover:text-white">
-                  <i id="pwEye-${sec.id}" class="ph-bold ph-eye text-sm"></i>
-                </button>
-                <button onclick="copyToClipboard('${escapeAttr(sec.password)}', 'Password')" class="text-amber-400 hover:text-amber-300">
-                  <i class="ph-bold ph-copy text-sm"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-        listEl.appendChild(card);
-      });
-    }
-
-    function toggleSecretMask(id, realPass) {
-      const span = document.getElementById(`pwMask-${id}`);
-      const eye = document.getElementById(`pwEye-${id}`);
-      if (!span) return;
-
-      if (span.dataset.open === 'true') {
-        span.textContent = '••••••••••••';
-        span.dataset.open = 'false';
-        eye.className = 'ph-bold ph-eye text-sm';
-      } else {
-        span.textContent = realPass;
-        span.dataset.open = 'true';
-        eye.className = 'ph-bold ph-eye-slash text-sm text-amber-400';
-      }
-    }
-
-    function saveVaultSecret(e) {
-      e.preventDefault();
-      const title = document.getElementById('vTitle').value.trim();
-      const username = document.getElementById('vUsername').value.trim();
-      const password = document.getElementById('vPassword').value;
-      const notes = document.getElementById('vNotes').value.trim();
-
-      secretItems.push({
-        id: 's-' + Date.now(),
-        title,
-        username,
-        password,
-        notes
-      });
-
-      saveState('secrets');
-      renderVaultSecrets();
-      closeModal('addSecretModal');
-      document.getElementById('vTitle').value = '';
-      document.getElementById('vUsername').value = '';
-      document.getElementById('vPassword').value = '';
-      document.getElementById('vNotes').value = '';
-      showToast('Key securely locked');
-    }
-
-    function deleteVaultSecret(id) {
-      secretItems = secretItems.filter(s => s.id !== id);
-      saveState('secrets');
-      renderVaultSecrets();
-      showToast('Key erased');
-    }
-
-    function saveNewMasterPin() {
-      const cur = document.getElementById('curPinInput').value;
-      const next = document.getElementById('newPinInput').value;
-
-      if (cur !== masterPin) {
-        showToast('Current PIN incorrect', false);
-        return;
-      }
-      if (next.length < 4) {
-        showToast('New PIN must be 4+ characters', false);
-        return;
-      }
-
-      masterPin = next;
-      localStorage.setItem(LS_PIN, masterPin);
-      closeModal('changePinModal');
-      document.getElementById('curPinInput').value = '';
-      document.getElementById('newPinInput').value = '';
-      showToast('Master PIN updated!');
-    }
-
-    function genStrongPass() {
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*';
-      let out = '';
-      for (let i = 0; i < 16; i++) out += chars.charAt(Math.floor(Math.random() * chars.length));
-      document.getElementById('vPassword').value = out;
-      document.getElementById('vPassword').type = 'text';
-      document.getElementById('vPassEye').className = 'ph ph-eye-slash';
-      showToast('16-character passkey generated');
-    }
-
-    // ================= STEP-BY-STEP DAY PREP WIZARD =================
-    function openWizardModal(step = 1) {
-      wizardCurrentStep = step;
-      document.getElementById('wizardMissedCount').textContent = missedItems.length;
-      updateWizardUI();
-      openModal('wizardModal');
-    }
-
-    function navWizard(dir) {
-      wizardCurrentStep += dir;
-      if (wizardCurrentStep < 1) wizardCurrentStep = 1;
-      if (wizardCurrentStep > 4) {
-        closeModal('wizardModal');
-        showToast('Day Prep Routine Complete. System locked.');
-        return;
-      }
-      updateWizardUI();
-    }
-
-    function updateWizardUI() {
-      for (let i = 1; i <= 4; i++) {
-        const stepEl = document.getElementById(`wizardStep-${i}`);
-        const dotEl = document.getElementById(`stepDot-${i}`);
-        if (i === wizardCurrentStep) {
-          stepEl.classList.remove('hidden');
-          dotEl.className = 'p-2 rounded-lg bg-teal-500/20 text-teal-300 border border-teal-500/40 font-bold';
-        } else {
-          stepEl.classList.add('hidden');
-          dotEl.className = 'p-2 rounded-lg bg-cine-elevated text-slate-500 border border-cine-border';
-        }
-      }
-
-      document.getElementById('wizardPrevBtn').disabled = (wizardCurrentStep === 1);
-      document.getElementById('wizardNextBtn').textContent = (wizardCurrentStep === 4) ? 'FINISH PREP' : 'NEXT STEP \u2192';
-    }
-
-    // ================= UPDATE & EXTENSION MANAGER =================
-    function loadFlags() {
-      try {
-        const stored = JSON.parse(localStorage.getItem(LS_FLAGS));
-        if (stored) featureFlags = { ...featureFlags, ...stored };
-      } catch (e) {}
-
-      document.getElementById('flagParticleDensity').checked = !!featureFlags.highParticles;
-      document.getElementById('flagAutoVoice').checked = featureFlags.autoVoice !== false;
-      document.getElementById('flagAutoTriage').checked = featureFlags.autoTriage !== false;
-    }
-
-    function toggleFeatureFlag(flag, val) {
-      featureFlags[flag] = val;
-      localStorage.setItem(LS_FLAGS, JSON.stringify(featureFlags));
-
-      if (flag === 'highParticles') {
-        createStardust(val ? 2500 : 900);
-      }
-      showToast(`Feature flag "${flag}" set to ${val}`);
-    }
-
-    function checkAppUpdates() {
-      const btn = document.getElementById('btnCheckUpdate');
-      btn.innerHTML = `<i class="ph ph-circle-notch animate-spin text-base"></i> CHECKING OTA...`;
-      btn.disabled = true;
-
-      setTimeout(() => {
-        btn.innerHTML = `<i class="ph-bold ph-check text-base"></i> UP TO DATE`;
-        btn.disabled = false;
-        document.getElementById('updateStatusNotice').innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-teal-400"></span>
-            <span>AETHER OS v3.0 IS RUNNING LATEST STABLE BUILD. Zero hotfixes pending.</span>
-          </div>
-          <span class="text-slate-500 text-[10px]">VERIFIED NOW</span>
-        `;
-        showToast('Checked OTA servers: Aether OS is up to date');
-      }, 1200);
-    }
-
-    function handleSchemaImport(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = JSON.parse(e.target.result);
-
-          if (data.tomorrowPrograms) {
-            tomorrowItems = data.tomorrowPrograms;
-            saveState('tomorrow');
-          }
-          if (data.missedPrograms) {
-            missedItems = data.missedPrograms;
-            saveState('missed');
-          }
-          if (data.notes) {
-            noteItems = data.notes;
-            saveState('notes');
-          }
-          if (data.secrets) {
-            secretItems = data.secrets;
-            saveState('secrets');
-          }
-
-          renderTomorrowTimeline();
-          renderMissedMatrix();
-          renderNotes();
-          showToast('Schema / Backup imported successfully!');
-        } catch (err) {
-          showToast('Invalid JSON schema file', false);
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = '';
-    }
-
-    function downloadStarterPluginTemplate() {
-      const template = {
-        meta: {
-          extensionName: "Custom Morning Routines Extension",
-          version: "1.0.0",
-          author: "User"
-        },
-        tomorrowPrograms: [
-          {
-            id: "t-ext-1",
-            title: "Morning Sunlight & Breathwork Protocol",
-            time: "07:00",
-            duration: 20,
-            category: "Health",
-            priority: "HIGH",
-            details: "10 mins natural sunlight exposure to reset circadian rhythm.",
-            completed: false
-          }
-        ],
-        notes: [
-          {
-            id: "n-ext-1",
-            title: "Circadian Optimization Playbook",
-            tag: "Health",
-            color: "amber",
-            body: "Early morning photon intake optimizes melatonin production 14 hours later."
-          }
-        ]
-      };
-
-      const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Aether_Extension_Template.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast('Sample Extension schema downloaded');
-    }
-
-    function exportFullSystemBackup() {
-      const payload = {
-        app: "AETHER // CINEMATIC OS",
-        version: "3.0 PRO",
-        exportedAt: new Date().toISOString(),
-        featureFlags,
-        tomorrowPrograms: tomorrowItems,
-        missedPrograms: missedItems,
-        notes: noteItems,
-        secrets: secretItems
-      };
-
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `AetherOS_StateBackup_${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast('System State JSON backup generated');
-    }
-
-    // ================= MODAL & UTILITY FUNCTIONS =================
-    function openTomorrowModal() { openModal('tomorrowModal'); }
-    function openMissedModal() { openModal('missedModal'); }
-    function openNoteModal() { openModal('noteModal'); }
-    function openAddSecretModal() { openModal('addSecretModal'); }
-    function openChangePinModal() { openModal('changePinModal'); }
-
-    function openModal(id) {
-      const el = document.getElementById(id);
-      if (el) el.classList.remove('hidden');
-    }
-
-    function closeModal(id) {
-      const el = document.getElementById(id);
-      if (el) el.classList.add('hidden');
-    }
-
-    function togglePassInput(inpId, eyeId) {
-      const inp = document.getElementById(inpId);
-      const eye = document.getElementById(eyeId);
-      if (inp.type === 'password') {
-        inp.type = 'text';
-        eye.className = 'ph ph-eye-slash';
-      } else {
-        inp.type = 'password';
-        eye.className = 'ph ph-eye';
-      }
-    }
-
-    function copyToClipboard(text, label = 'Data') {
-      const el = document.createElement('textarea');
-      el.value = text;
-      el.style.position = 'fixed';
-      el.style.opacity = '0';
-      document.body.appendChild(el);
-      el.select();
-      try {
-        document.execCommand('copy');
-        showToast(`${label} copied to clipboard!`);
-      } catch (err) {
-        showToast('Clipboard error', false);
-      }
-      document.body.removeChild(el);
-    }
-
-    function showToast(msg, isOk = true) {
-      const toast = document.getElementById('cyberToast');
-      const text = document.getElementById('toastText');
-      const icon = document.getElementById('toastIcon');
-
-      text.textContent = msg;
-      icon.className = isOk ? 'ph-bold ph-check-circle text-amber-400 text-base' : 'ph-bold ph-warning-circle text-rose-400 text-base';
-
-      toast.classList.remove('translate-y-24', 'opacity-0');
-      setTimeout(() => {
-        toast.classList.add('translate-y-24', 'opacity-0');
-      }, 2600);
-    }
-
-    function formatTime(sec) {
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-    }
-
-    function formatBytes(bytes) {
-      if (bytes === 0) return '0 B';
-      const k = 1024;
-      const sizes = ['B', 'KB', 'MB', 'GB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function escapeAttr(str) {
-      if (!str) return '';
-      return String(str).replace(/'/g, "\\'");
-    }
-  </script>
-</body>
-</html>
-```
+    /* =========================================================
+       1. IndexedDB Persistent Storage Layer
+       ========================================================= */
+    const DB_NAME = 'AetherCinematicDB';
+    const DB_VERSION = 1;
+    let db;
+
+    function openDB() {
+      return 
