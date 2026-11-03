@@ -1,379 +1,375 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>AETHER // CINEMATIC OS v3.1</title>
-  
-  <!-- PWA & Mobile Meta Tags -->
-  <meta name="theme-color" content="#040508">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Aether OS">
-  
-  <!-- Data-URI Web App Manifest -->
-  <link rel="manifest" href="data:application/manifest+json;utf-8,%7B%22name%22%3A%22Aether%20Cinematic%20OS%22%2C%22short_name%22%3A%22Aether%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23040508%22%2C%22theme_color%22%3A%22%23040508%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F2091%2F2091580.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
-  
-  <!-- CDNs: Tailwind, Google Fonts, Lucide Icons, Three.js -->
-  <script src="https://cdn.tailwindcss.com"></script>
+    ```html
+    <!DOCTYPE html>
+    <html lang="en" class="dark">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>AETHER // CINEMATIC OS v3.0 - Executive Holographic Hub</title>
+      
+      <!-- Tailwind CSS -->
+      <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js for 3D Visualizer -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --bg: #040508;
-      --card-bg: rgba(10, 13, 20, 0.72);
-      --card-border: rgba(212, 175, 55, 0.16);
-      --gold-primary: #e6ca65;
-      --gold-glow: rgba(230, 202, 101, 0.35);
-      --cyan-lum: #22d3ee;
-      --text-main: #f3f4f6;
-    }
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-    body {
-      background-color: var(--bg);
-      color: var(--text-main);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      overflow-x: hidden;
-      margin: 0;
-    }
-    .font-cinzel { font-family: 'Cinzel', serif; }
-    .font-mono { font-family: 'Space Mono', monospace; }
-    .cinematic-flare {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100vw;
-      height: 280px;
-      background: radial-gradient(ellipse at top, rgba(230, 202, 101, 0.14) 0%, rgba(34, 211, 238, 0.05) 45%, transparent 75%);
-      pointer-events: none;
-      z-index: 1;
-    }
-    .glass-panel {
-      background: var(--card-bg);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid var(--card-border);
-      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
-    }
-    .gold-glow {
-      box-shadow: 0 0 25px -4px var(--gold-glow);
-    }
-    .btn-gold {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #050505;
-      font-weight: 700;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .btn-gold:active {
-      transform: scale(0.97);
-    }
-    .nav-tab.active {
-      background: rgba(230, 202, 101, 0.12);
-      border-color: rgba(230, 202, 101, 0.4);
-      color: #fbbf24;
-    }
-    #three-viewport {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: auto;
-    }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #06080d; }
-    ::-webkit-scrollbar-thumb { background: #222938; border-radius: 3px; }
-  </style>
-
-  <!-- Dynamic Service Worker Registration for PWA Engine -->
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        const swBlob = new Blob([
-          `self.addEventListener('install', e => self.skipWaiting());
-           self.addEventListener('activate', e => self.clients.claim());
-           self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));`
-        ], { type: 'text/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(swBlob))
-          .then(reg => console.log('Aether PWA Service Worker Ready:', reg.scope))
-          .catch(err => console.error('SW Error:', err));
-      });
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            cinzel: ['"Cinzel"', 'serif'],
+            sans: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            cine: {
+              void: '#040508',
+              obsidian: '#07090e',
+              surface: '#0d111a',
+              elevated: '#141a27',
+              border: '#1f293d',
+              gold: '#f59e0b',
+              amber: '#d97706',
+              teal: '#06b6d4',
+              cyan: '#00f2ff',
+              emerald: '#10b981',
+              crimson: '#f43f5e',
+            }
+          },
+          boxShadow: {
+            'anamorphic-amber': '0 0 35px -5px rgba(245, 158, 11, 0.35)',
+            'anamorphic-teal': '0 0 35px -5px rgba(6, 182, 212, 0.35)',
+            'letterbox-glow': 'inset 0 0 60px rgba(0,0,0,0.85)',
+          }
+        }
+      }
     }
   </script>
+
+  <style>
+    /* Cinematic IMAX & Film Flare Styling */
+    body {
+      background-color: #040508;
+      background-image: 
+        radial-gradient(ellipse 90% 40% at 50% 0%, rgba(245, 158, 11, 0.08), transparent 70%),
+        radial-gradient(ellipse 70% 30% at 50% 100%, rgba(6, 182, 212, 0.07), transparent 70%);
+      background-attachment: fixed;
+    }
+
+    .glass-cine {
+      background: rgba(13, 17, 26, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(245, 158, 11, 0.15);
+    }
+
+    .glass-card {
+      background: rgba(20, 26, 39, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .anamorphic-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(245, 158, 11, 0.8) 50%, transparent 100%);
+    }
+
+    .anamorphic-line-teal {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(6, 182, 212, 0.8) 50%, transparent 100%);
+    }
+
+    /* 3D Canvas Container */
+    #canvas3d-container {
+      cursor: grab;
+    }
+    #canvas3d-container:active {
+      cursor: grabbing;
+    }
+
+    /* Custom sleek scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #040508;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1f293d;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #f59e0b;
+    }
+
+    @keyframes pulseAura {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.02); }
+    }
+    .cine-pulse {
+      animation: pulseAura 4s infinite ease-in-out;
+    }
+  </style>
 </head>
-<body class="min-h-screen relative antialiased pb-20 selection:bg-amber-500 selection:text-black">
+<body class="text-slate-200 min-h-screen flex flex-col font-sans selection:bg-amber-500 selection:text-black relative overflow-x-hidden">
 
-  <div class="cinematic-flare"></div>
-
-  <!-- Header Banner -->
-  <header class="relative z-10 border-b border-amber-500/20 glass-panel px-4 md:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
-    <div class="flex items-center space-x-3">
-      <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-amber-600 via-amber-400 to-amber-200 p-[1.5px] flex items-center justify-center shadow-lg shadow-amber-500/20">
-        <div class="w-full h-full bg-[#05070a] rounded-[7px] flex items-center justify-center">
-          <i data-lucide="orbit" class="w-5 h-5 text-amber-400"></i>
+  <!-- TOP CINEMATIC HUD BAR -->
+  <header class="sticky top-0 z-40 glass-cine border-b border-cine-border shadow-2xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <!-- Title & Live Time -->
+      <div class="flex items-center space-x-3">
+        <div class="relative w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-stone-900 to-teal-500 flex items-center justify-center border border-amber-500/40 shadow-anamorphic-amber">
+          <i class="ph-fill ph-atom text-amber-300 text-2xl"></i>
+          <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400"></span>
+          </span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-cinzel font-bold text-sm sm:text-base tracking-widest uppercase text-white flex items-center gap-2">
+              AETHER <span class="text-amber-500 text-xs font-mono font-normal">// CINEMATIC OS</span>
+            </h1>
+            <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">v3.0 EXT</span>
+          </div>
+          <div id="liveHUDClock" class="text-[11px] font-mono text-slate-400 flex items-center gap-2">
+            <i class="ph ph-satellite text-teal-400"></i> SYNCHRONIZING REALTIME ORBITS...
+          </div>
         </div>
       </div>
-      <div>
-        <div class="flex items-center space-x-2">
-          <h1 class="text-sm md:text-base font-cinzel font-bold tracking-wider text-amber-200">AETHER // CINEMATIC OS</h1>
-          <span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30 font-mono">v3.1 PWA</span>
-        </div>
-        <p id="live-chronometer" class="text-[11px] text-zinc-400 font-mono">00:00:00 // INITIALIZING...</p>
+
+      <!-- Quick Actions -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Sentinel Briefing Launcher -->
+        <button onclick="triggerDebriefHUD(true)" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-anamorphic-amber transition">
+          <i class="ph-bold ph-bell-ringing text-amber-400"></i>
+          <span class="hidden sm:inline">WHAT HAPPENED?</span>
+        </button>
+
+        <!-- Voice Toggle -->
+        <button id="voiceMuteToggle" onclick="toggleVoiceSpeech()" class="p-2 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-cine-elevated transition border border-transparent hover:border-cine-border" title="Voice Synthesizer On/Off">
+          <i id="voiceMuteIcon" class="ph-bold ph-speaker-high text-base"></i>
+        </button>
+
+        <!-- Step-by-Step Flow Launcher -->
+        <button onclick="openWizardModal(1)" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/40 transition">
+          <i class="ph-fill ph-lightning text-teal-400"></i>
+          <span class="hidden sm:inline">DAY PREP</span>
+        </button>
+
+        <!-- System Updates & Extensions Nav -->
+        <button onclick="switchTab('updates')" class="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-cine-elevated transition" title="OTA Updates & System Extensions">
+          <i class="ph-bold ph-gear-six text-lg"></i>
+          <span id="updateDotBadge" class="absolute top-1 right-1 h-2 w-2 rounded-full bg-amber-400 animate-ping"></span>
+        </button>
       </div>
     </div>
-
-    <div class="flex items-center space-x-2">
-      <!-- PWA Dedicated Install Trigger (Hidden by default, shown when install is ready) -->
-      <button id="pwa-install-btn" class="hidden items-center space-x-1.5 px-3 py-1.5 rounded-lg btn-gold text-xs shadow-md shadow-amber-500/20" onclick="triggerPWAInstall()">
-        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-        <span>Install App</span>
-      </button>
-
-      <button onclick="triggerDebrief(true)" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-amber-400/30 hover:border-amber-400 text-xs font-mono text-amber-300 bg-amber-950/20 transition-all">
-        <i data-lucide="radio" class="w-3.5 h-3.5 text-amber-400"></i>
-        <span>Debrief</span>
-      </button>
-
-      <button id="speech-toggle" onclick="toggleAudioSentinel()" class="p-2 rounded-lg border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-zinc-200 text-xs transition">
-        <i id="speech-icon" data-lucide="volume-2" class="w-4 h-4 text-cyan-400"></i>
-      </button>
-      
-      <button onclick="openWizard()" class="px-3.5 py-1.5 rounded-lg btn-gold text-xs flex items-center space-x-1.5">
-        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-        <span>Night Prep</span>
-      </button>
-    </div>
+    <div class="anamorphic-line w-full"></div>
   </header>
 
-  <!-- Main Grid Layout -->
-  <main class="relative z-10 max-w-7xl mx-auto px-4 md:px-8 mt-5 space-y-6">
-    
-    <!-- 3D Holographic Core Viewport -->
-    <div class="relative glass-panel rounded-2xl overflow-hidden border border-amber-500/25 h-[230px] md:h-[290px] shadow-2xl">
-      <div id="three-viewport"></div>
-      
-      <!-- Overlay Labels -->
-      <div class="absolute top-3 left-4 pointer-events-none flex items-center space-x-2">
-        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-        <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-300">Chrono Hologram Core</span>
-      </div>
-
-      <div class="absolute top-3 right-4 z-10 flex space-x-1.5 bg-black/60 backdrop-blur-md p-1 rounded-lg border border-white/10">
-        <button onclick="setSpectrum('solar')" class="px-2 py-0.5 text-[10px] font-mono rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">Solar</button>
-        <button onclick="setSpectrum('cyan')" class="px-2 py-0.5 text-[10px] font-mono rounded text-zinc-400 hover:text-cyan-300 hover:bg-white/5">Teal</button>
-        <button onclick="setSpectrum('void')" class="px-2 py-0.5 text-[10px] font-mono rounded text-zinc-400 hover:text-violet-300 hover:bg-white/5">Void</button>
-      </div>
-
-      <div class="absolute bottom-3 left-4 right-4 pointer-events-none flex justify-between items-end">
-        <div class="space-y-0.5">
-          <p id="core-summary-tasks" class="text-xs font-mono text-zinc-400">Tomorrow Agenda: <span class="text-amber-300 font-bold">0 Pending</span></p>
-          <p id="core-summary-missed" class="text-xs font-mono text-zinc-400">Overdue Matrix: <span class="text-rose-400 font-bold">0 Tasks</span></p>
+  <!-- ==================== 3D HOLOGRAPHIC CHRONO VISUALIZER ==================== -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-5 w-full">
+    <div class="relative glass-cine rounded-2xl border border-amber-500/20 overflow-hidden shadow-2xl">
+      <!-- Top Canvas Controls Overlay -->
+      <div class="absolute top-3 left-4 right-4 z-10 flex flex-wrap items-center justify-between pointer-events-none gap-2">
+        <div class="flex items-center gap-2 pointer-events-auto">
+          <span class="text-[10px] font-mono tracking-widest text-amber-400 bg-black/60 px-2 py-1 rounded border border-amber-500/30 uppercase flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+            3D Holographic Core
+          </span>
+          <span id="coreStatusText" class="text-[10px] font-mono text-slate-400 hidden sm:inline bg-black/40 px-2 py-1 rounded border border-slate-700">
+            DRAG TO ORBIT // CLICK TO SHIFT SPECTRUM
+          </span>
         </div>
-        <div id="sleep-badge" class="hidden px-2.5 py-1 rounded bg-rose-950/80 border border-rose-500/50 text-rose-300 text-[11px] font-mono animate-bounce">
-          Sleep Guardian: ACTIVE
-        </div>
-      </div>
-    </div>
 
-    <!-- Navigation Tabs -->
-    <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
-      <button onclick="switchTab('tomorrow')" id="tab-tomorrow" class="nav-tab active glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border">
-        <i data-lucide="calendar-clock" class="w-4 h-4"></i>
-        <span>Tomorrow</span>
-      </button>
-      <button onclick="switchTab('missed')" id="tab-missed" class="nav-tab glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border border-zinc-800 text-zinc-400">
-        <i data-lucide="alert-octagon" class="w-4 h-4"></i>
-        <span>Missed</span>
-      </button>
-      <button onclick="switchTab('vault')" id="tab-vault" class="nav-tab glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border border-zinc-800 text-zinc-400">
-        <i data-lucide="key-round" class="w-4 h-4"></i>
-        <span>Vault</span>
-      </button>
-      <button onclick="switchTab('media')" id="tab-media" class="nav-tab glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border border-zinc-800 text-zinc-400">
-        <i data-lucide="music-4" class="w-4 h-4"></i>
-        <span>Media &amp; Files</span>
-      </button>
-      <button onclick="switchTab('notes')" id="tab-notes" class="nav-tab glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border border-zinc-800 text-zinc-400">
-        <i data-lucide="file-text" class="w-4 h-4"></i>
-        <span>Intel Notes</span>
-      </button>
-      <button onclick="switchTab('ota')" id="tab-ota" class="nav-tab glass-panel p-3 rounded-xl flex flex-col items-center justify-center space-y-1.5 transition-all text-xs font-mono border border-zinc-800 text-zinc-400">
-        <i data-lucide="cpu" class="w-4 h-4"></i>
-        <span>OTA Engine</span>
-      </button>
-    </div>
-
-    <!-- Section 1: Tomorrow Programs -->
-    <section id="panel-tomorrow" class="space-y-4">
-      <div class="glass-panel rounded-2xl p-5 border border-zinc-800/80">
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div>
-            <h2 class="text-base font-cinzel font-bold text-amber-200">Tomorrow's Operational Agenda</h2>
-            <p class="text-xs text-zinc-400">Plan and structure upcoming missions and tasks</p>
-          </div>
-          <button onclick="showAddTaskModal()" class="px-3.5 py-1.5 rounded-lg btn-gold text-xs flex items-center space-x-1.5">
-            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            <span>Add Program</span>
+        <div class="flex items-center gap-1.5 pointer-events-auto">
+          <button onclick="setVisualizerTheme('amber')" class="px-2 py-0.5 rounded text-[10px] font-mono border border-amber-500/40 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30">
+            SOLAR
+          </button>
+          <button onclick="setVisualizerTheme('teal')" class="px-2 py-0.5 rounded text-[10px] font-mono border border-teal-500/40 bg-teal-500/20 text-teal-300 hover:bg-teal-500/30">
+            TEAL
+          </button>
+          <button onclick="setVisualizerTheme('quantum')" class="px-2 py-0.5 rounded text-[10px] font-mono border border-purple-500/40 bg-purple-500/20 text-purple-300 hover:bg-purple-500/30">
+            QUANTUM
           </button>
         </div>
-        <div id="tomorrow-list" class="space-y-2.5"></div>
       </div>
-    </section>
 
-    <!-- Section 2: Missed Programs Triage -->
-    <section id="panel-missed" class="hidden space-y-4">
-      <div class="glass-panel rounded-2xl p-5 border border-rose-900/40">
-        <div class="flex items-center justify-between mb-4">
+      <!-- Canvas Mount -->
+      <div id="canvas3d-container" class="w-full h-44 sm:h-56 relative bg-gradient-to-b from-[#040508] via-[#090d16] to-[#040508]">
+        <!-- 3D Canvas injected via Three.js -->
+      </div>
+
+      <!-- Bottom Status Readout -->
+      <div class="px-4 py-2 border-t border-cine-border/60 bg-black/40 flex flex-wrap items-center justify-between text-[11px] font-mono text-slate-400 gap-2">
+        <div class="flex items-center gap-4">
+          <span>TARGET MATRIX: <span id="hudTomorrowTasksCount" class="text-amber-400 font-bold">0</span> EVENTS</span>
+          <span>MISSED QUEUE: <span id="hudMissedTasksCount" class="text-rose-400 font-bold">0</span> OVERDUE</span>
+          <span class="hidden sm:inline">MEDIA LOCKER: <span id="hudMediaCount" class="text-teal-400 font-bold">0</span> FILES</span>
+        </div>
+        <div id="sleepAdvisoryPill" class="text-slate-400 flex items-center gap-1">
+          <i class="ph ph-moon-stars text-amber-400"></i> NORMAL OPERATIONAL CYCLE
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== MAIN WORKSPACE TABS ==================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-6">
+
+    <!-- NAVIGATION TABS -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-cine-border">
+      <button onclick="switchTab('tomorrow')" id="tabBtn-tomorrow" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-semibold flex items-center gap-2 bg-amber-500/10 text-amber-400 border border-amber-500/40 transition">
+        <i class="ph-bold ph-calendar-plus text-base"></i>
+        <span>01. TOMORROW PLAN</span>
+        <span id="badge-tomorrow" class="px-1.5 py-0.2 rounded-full bg-amber-950 text-amber-300 text-[10px]">0</span>
+      </button>
+
+      <button onclick="switchTab('missed')" id="tabBtn-missed" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
+        <i class="ph-bold ph-alarm text-base text-rose-400"></i>
+        <span>02. MISSED TRIAGE</span>
+        <span id="badge-missed" class="px-1.5 py-0.2 rounded-full bg-rose-950/80 text-rose-300 text-[10px]">0</span>
+      </button>
+
+      <button onclick="switchTab('media')" id="tabBtn-media" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
+        <i class="ph-bold ph-music-notes text-base text-teal-400"></i>
+        <span>03. MUSIC & FILE VAULT</span>
+        <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30 font-mono">IDB PERM</span>
+      </button>
+
+      <button onclick="switchTab('notes')" id="tabBtn-notes" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
+        <i class="ph-bold ph-notebook text-base text-emerald-400"></i>
+        <span>04. INTEL NOTES</span>
+        <span id="badge-notes" class="px-1.5 py-0.2 rounded-full bg-emerald-950 text-emerald-300 text-[10px]">0</span>
+      </button>
+
+      <button onclick="switchTab('credentials')" id="tabBtn-credentials" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
+        <i class="ph-bold ph-shield-check text-base text-amber-400"></i>
+        <span>05. SECRET PASSWORDS</span>
+        <i class="ph ph-lock-key text-xs"></i>
+      </button>
+
+      <button onclick="switchTab('updates')" id="tabBtn-updates" class="tab-btn px-4 py-2 rounded-xl text-xs font-mono tracking-wider font-medium flex items-center gap-2 text-slate-400 hover:text-white hover:bg-cine-elevated transition border border-transparent">
+        <i class="ph-bold ph-sliders-horizontal text-base text-purple-400"></i>
+        <span>06. EXTENSIONS & UPDATES</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: TOMORROW'S TIMELINE -->
+    <section id="tab-tomorrow" class="tab-section flex flex-col lg:flex-row gap-6">
+      <div class="flex-1 space-y-4">
+        <div class="glass-cine p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 class="text-base font-cinzel font-bold text-rose-300">Missed Program Triage</h2>
-            <p class="text-xs text-zinc-400">Recover missed tasks or forward them into tomorrow's plan</p>
-          </div>
-        </div>
-        <div id="missed-list" class="space-y-2.5"></div>
-      </div>
-    </section>
-
-    <!-- Section 3: Credentials Vault -->
-    <section id="panel-vault" class="hidden space-y-4">
-      <div class="glass-panel rounded-2xl p-5 border border-amber-500/20">
-        <div id="vault-locked-state" class="text-center py-10 space-y-4">
-          <div class="w-12 h-12 mx-auto rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
-            <i data-lucide="shield-alert" class="w-6 h-6 text-amber-400"></i>
-          </div>
-          <h3 class="font-cinzel text-lg font-bold text-amber-200">Credential Locker Locked</h3>
-          <p class="text-xs text-zinc-400 max-w-sm mx-auto">Enter your 4-digit master PIN. (Default: 1234)</p>
-          <div class="flex justify-center items-center space-x-2">
-            <input type="password" id="vault-pin-input" maxlength="8" placeholder="••••" class="w-32 bg-black/50 border border-zinc-700 text-center text-lg tracking-widest text-amber-300 py-2 rounded-lg focus:outline-none focus:border-amber-400">
-            <button onclick="unlockVault()" class="px-4 py-2 rounded-lg btn-gold text-xs">Unlock</button>
-          </div>
-        </div>
-
-        <div id="vault-unlocked-state" class="hidden space-y-4">
-          <div class="flex justify-between items-center pb-3 border-b border-zinc-800">
-            <span class="text-xs font-mono text-emerald-400 flex items-center space-x-1">
-              <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-              <span>Vault Decrypted</span>
-            </span>
-            <div class="flex space-x-2">
-              <button onclick="showAddSecretModal()" class="px-3 py-1 rounded-lg btn-gold text-xs">New Credential</button>
-              <button onclick="lockVault()" class="px-3 py-1 rounded-lg border border-zinc-700 text-xs text-zinc-300 hover:bg-zinc-800">Lock</button>
+            <div class="flex items-center gap-2">
+              <span class="h-2 w-2 rounded-full bg-amber-400 animate-ping"></span>
+              <h2 class="text-sm font-bold font-mono tracking-wider uppercase text-white">Tomorrow's Tactical Schedule</h2>
             </div>
+            <p id="tomorrowFullDate" class="text-xs text-slate-400 font-mono mt-0.5">TARGET: LOADING...</p>
           </div>
-          <div id="credentials-list" class="grid sm:grid-cols-2 gap-3"></div>
+          <button onclick="openTomorrowModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold font-mono tracking-wider bg-amber-500 hover:bg-amber-400 text-black flex items-center gap-1.5 shadow-anamorphic-amber transition">
+            <i class="ph-bold ph-plus-circle text-base"></i>
+            NEW PROGRAM
+          </button>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="flex items-center justify-between gap-2 px-1 text-xs font-mono">
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-500">FILTER:</span>
+            <button onclick="filterTomorrow('ALL')" id="tFilter-ALL" class="px-2.5 py-1 rounded-lg bg-cine-border text-amber-300 font-semibold">ALL</button>
+            <button onclick="filterTomorrow('HIGH')" id="tFilter-HIGH" class="px-2.5 py-1 rounded-lg hover:bg-cine-elevated text-slate-400">HIGH PRIORITY</button>
+            <button onclick="filterTomorrow('PENDING')" id="tFilter-PENDING" class="px-2.5 py-1 rounded-lg hover:bg-cine-elevated text-slate-400">PENDING</button>
+          </div>
+          <span id="tomorrowTimelineCount" class="text-slate-500">0 PROGRAMS</span>
+        </div>
+
+        <!-- Chrono Timeline Container -->
+        <div id="tomorrowTimelineList" class="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-amber-500 before:via-teal-500 before:to-transparent">
+          <!-- Dynamic Items -->
         </div>
       </div>
-    </section>
 
-    <!-- Section 4: IndexedDB Permanent Music & Storage -->
-    <section id="panel-media" class="hidden space-y-4">
-      <div class="glass-panel rounded-2xl p-5 border border-cyan-500/30">
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div>
-            <h2 class="text-base font-cinzel font-bold text-cyan-200">Permanent Media &amp; File Vault</h2>
-            <p class="text-xs text-zinc-400">IndexedDB persistent storage. Files stay stored on your local device.</p>
-          </div>
-          <label class="px-3.5 py-1.5 rounded-lg btn-gold text-xs flex items-center space-x-1.5 cursor-pointer">
-            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-            <span>Upload File / Music</span>
-            <input type="file" id="media-upload-input" class="hidden" onchange="handleMediaUpload(event)">
-          </label>
-        </div>
-
-        <!-- Built-in Cyber Audio Player -->
-        <div class="bg-black/60 border border-cyan-500/20 rounded-xl p-4 mb-5 flex flex-col gap-2">
+      <!-- Metrics and EVE Readiness Widget -->
+      <div class="w-full lg:w-80 space-y-4">
+        <div class="glass-cine p-5 rounded-2xl space-y-4 border-l-4 border-l-amber-400">
           <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <i data-lucide="disc-3" class="w-5 h-5 text-cyan-400 animate-spin" style="animation-duration: 8s;"></i>
-              <span id="player-title" class="text-xs font-mono text-zinc-300">No Audio Selected</span>
-            </div>
-            <span id="player-timer" class="text-[11px] font-mono text-cyan-400">0:00 / 0:00</span>
+            <span class="text-xs font-mono text-slate-400">PREPAREDNESS INDEX</span>
+            <i class="ph-bold ph-gauge text-amber-400 text-lg"></i>
           </div>
-          <audio id="core-audio-element" class="w-full h-8 mt-1 rounded bg-zinc-900"></audio>
+          <div class="flex items-baseline gap-2">
+            <span id="readinessScoreVal" class="text-3xl font-bold font-mono text-white">88%</span>
+            <span id="readinessLabel" class="text-xs text-amber-400 font-mono">LOCKDOWN READY</span>
+          </div>
+          <div class="w-full bg-cine-elevated h-1.5 rounded-full overflow-hidden">
+            <div id="readinessBar" class="bg-gradient-to-r from-amber-400 to-teal-400 h-full w-[88%] rounded-full transition-all duration-500"></div>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed font-mono">
+            Planning tasks ahead clears working memory and encourages natural restorative rest.
+          </p>
         </div>
 
-        <div id="media-items-grid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
+        <div class="glass-card p-4 rounded-2xl border border-cine-border space-y-3">
+          <h3 class="text-xs font-bold font-mono tracking-wider text-slate-300 flex items-center gap-2">
+            <i class="ph-bold ph-crosshair text-teal-400"></i> NIGHT PROTOCOL
+          </h3>
+          <ul class="text-xs space-y-2 text-slate-400">
+            <li class="flex items-center gap-2">
+              <input type="checkbox" id="chkProt1" class="rounded bg-cine-elevated border-cine-border text-amber-400 focus:ring-0">
+              <label for="chkProt1">Triage today's uncompleted items</label>
+            </li>
+            <li class="flex items-center gap-2">
+              <input type="checkbox" id="chkProt2" class="rounded bg-cine-elevated border-cine-border text-amber-400 focus:ring-0">
+              <label for="chkProt2">Check morning meeting credentials</label>
+            </li>
+            <li class="flex items-center gap-2">
+              <input type="checkbox" id="chkProt3" class="rounded bg-cine-elevated border-cine-border text-amber-400 focus:ring-0">
+              <label for="chkProt3">Shutdown screen & initiate sleep cycle</label>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
 
-    <!-- Section 5: Intel Notes -->
-    <section id="panel-notes" class="hidden space-y-4">
-      <div class="glass-panel rounded-2xl p-5 border border-zinc-800">
-        <div class="flex justify-between items-center mb-4">
-          <div>
-            <h2 class="text-base font-cinzel font-bold text-amber-200">Intel Scratchpad &amp; Notes</h2>
-            <p class="text-xs text-zinc-400">Persistent field notes &amp; fast memos</p>
-          </div>
-          <button onclick="showAddNoteModal()" class="px-3.5 py-1.5 rounded-lg btn-gold text-xs flex items-center space-x-1">
-            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            <span>New Note</span>
-          </button>
-        </div>
-        <div id="notes-grid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
-      </div>
-    </section>
-
-    <!-- Section 6: OTA & Extensions -->
-    <section id="panel-ota" class="hidden space-y-4">
-      <div class="glass-panel rounded-2xl p-5 border border-zinc-800 space-y-4">
+    <!-- TAB 2: MISSED PROGRAMS TRIAGE -->
+    <section id="tab-missed" class="tab-section hidden space-y-4">
+      <div class="glass-cine p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 class="text-base font-cinzel font-bold text-amber-200">OTA Pipeline &amp; System Extensions</h2>
-          <p class="text-xs text-zinc-400">Manage updates, runtime toggles, and JSON data exports</p>
-        </div>
-        <div class="p-3 bg-black/40 rounded-xl border border-zinc-800 text-xs font-mono space-y-2">
-          <div class="flex justify-between">
-            <span class="text-zinc-400">Build Version:</span>
-            <span class="text-amber-300">v3.1-STABLE-PWA</span>
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-rose-500"></span>
+            <h2 class="text-sm font-bold tracking-wide uppercase font-mono text-white">Missed Program Resolution Matrix</h2>
           </div>
-          <div class="flex justify-between">
-            <span class="text-zinc-400">Database Engine:</span>
-            <span class="text-emerald-400">IndexedDB (Online/Offline Ready)</span>
-          </div>
+          <p class="text-xs text-slate-400">Review tasks that slipped past. 1-click push them into tomorrow's schedule or dismiss.</p>
         </div>
-        <div class="flex flex-wrap gap-2">
-          <button onclick="exportFullBackup()" class="px-3 py-1.5 rounded-lg border border-zinc-700 text-xs text-zinc-300 hover:bg-white/5 font-mono flex items-center space-x-1">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span>Export Full Backup</span>
-          </button>
-          <button onclick="resetAppDefaults()" class="px-3 py-1.5 rounded-lg border border-rose-900/50 text-xs text-rose-400 hover:bg-rose-950/20 font-mono flex items-center space-x-1">
-            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-            <span>Restore Defaults</span>
-          </button>
-        </div>
+        <button onclick="openMissedModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold font-mono tracking-wider bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 flex items-center gap-1.5 transition">
+          <i class="ph-bold ph-plus-circle text-base"></i>
+          LOG MISSED EVENT
+        </button>
+      </div>
+
+      <div id="missedItemsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Rendered dynamically -->
       </div>
     </section>
 
-  </main>
+    <!-- TAB 3: PERMANENT MUSIC & FILE VAULT (IndexedDB) -->
+    <section id="tab-media" class="tab-section hidden space-y-6">
+      <div class="glass-cine p-5 rounded-2xl flex flex-col md:flex-row gap-6 items-center justify-between">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <i class="ph-fill ph-hard-drives text-teal-400 text-xl"></i>
+            <h2 class="text-sm font-bold uppercase font-mono text-white tracking-wider">Permanent IndexedDB Media Engine</h2>
+          </div>
+          <p class="text-xs text-slate-400 max-w-xl leading-relaxed">
+            All music tracks, audio assets, and vaulted files are written directly into your local browser IndexedDB storage engine. They persist permanently across restarts and do not consume cloud bandwidth.
+          </p>
+        </div>
 
-  <!-- Guided Day Prep Wizard Modal -->
-  <div id="wizard-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="glass-panel w-full max-w-lg rounded-2xl p-6 border border-amber-500/30 space-y-5">
-      <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-        <h3 id="wizard-step-title" class="text-base font-cinzel font-bold text-amber-200">Day Prep Wizard</h3>
-        <button onclick="closeWizard()" class="text-zinc-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-      <div id="wizard-step-body" class="text-xs text-zinc-300 min-h-[140px] leading-relaxed"></div>
-      <div class="flex justify-between items-center pt-2">
-        <button id="wizard-prev-btn" onclick="wizardStep(-1)" class="px-3 py-1.5 rounded-lg border border-zinc-700 text-xs text-zinc-400">Previous</button>
-        <span id="wizard-step-indicator" class="text-xs font-mono text-zinc-500">Step 1/3</span>
-        <button id="wizard-next-btn" onclick="wizardStep(1)" class="px-4 py-1.5 rounded-lg btn-gold text-xs">Next</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    /* =========================================================
-       1. IndexedDB Persistent Storage Layer
-       ========================================================= */
-    const DB_NAME = 'AetherCinematicDB';
-    const DB_VERSION = 1;
-    let db;
-
-    function openDB() {
-      return 
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="cursor-pointer px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-mono text-xs font-bold tr
